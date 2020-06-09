@@ -690,7 +690,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:sestatus -> r:^Loaded policy name:\s+targeted$'
+      - 'c:sestatus -> r:^Policy from config file:\s+targeted$|^Policy from config file:\s+mls$'
       - 'f:/etc/selinux/config -> r:^\s*SELINUXTYPE\s*=\s*targeted|^\s*SELINUXTYPE\s*=\s*mls'
 
 # 1.6.1.4 Remove SETroubleshoot
