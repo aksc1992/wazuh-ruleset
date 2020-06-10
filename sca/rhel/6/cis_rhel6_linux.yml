@@ -1779,7 +1779,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'f:/boot/grub/grub.conf -> r:^\s*\t*linux && !r:ipv6.disable=1'
+      - 'f:/boot/grub/grub.conf -> r:^\s*\t*kernel && !r:ipv6.disable=1'
 
 
 ###############################################
