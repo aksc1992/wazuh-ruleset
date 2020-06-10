@@ -2068,7 +2068,7 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: none
     rules:
-      - 'f:/boot/grub2/grub.cfg -> r:^\s*\t*linux && !r:audit=1'
+      - 'f:/boot/grub/grub.conf -> r:^\s*\t*kernel && !r:audit=1'
       
 # 4.1.4 Ensure events that modify date and time information are collected (Scored)
   - id: 5114 
