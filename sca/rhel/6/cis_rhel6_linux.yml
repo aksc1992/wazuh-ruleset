@@ -178,7 +178,7 @@ checks:
     title: "Ensure separate partition exists for /tmp"
     description: "The /tmp directory is a world-writable directory used for temporary storage by all users and some applications."
     rationale: "Since the /tmp directory is intended to be world-writable, there is a risk of resource exhaustion if it is not bound to a separate partition. In addition, making /tmp its own file system allows an administrator to set the noexec option on the mount, making /tmp useless for an attacker to install executable code. It would also prevent an attacker from establishing a hardlink to a system setuid program and wait for it to be updated. Once the program was updated, the hardlink would be broken and the attacker would have his own copy of the program. If the program happened to have a security vulnerability, the attacker could continue to exploit the known flaw."
-    remediation: "For new installations, during installation create a custom partition setup and specify a separate partition for /tmp. For systems that were previously installed, create a new partition for /tmp if not using tmpfs. Enable systemd /tmp mounting"
+    remediation: "For new installations, during installation create a custom partition setup and specify a separate partition for /tmp. For systems that were previously installed, create a new partition and configure /etc/fstab as appropriate."
     compliance:
       - cis: ["1.1.2"]
       - pci_dss: ["2.2.4"]
@@ -195,7 +195,7 @@ checks:
     title: "Ensure nodev option set on /tmp partition"
     description: "The nodev mount option specifies that the filesystem cannot contain special devices."
     rationale: "Since the /tmp filesystem is not intended to support devices, set this option to ensure that users cannot attempt to create block or character special devices in /tmp."
-    remediation: "Edit /etc/systemd/system/local-fs.target.wants/tmp.mount to add nodev to the /tmp mount options: Options=mode=1777,strictatime,noexec,nodev,nosuid"
+    remediation: "Edit the /etc/fstabfile and add nodev to the fourth field (mounting options) for the /tmp partition. See the fstab(5)manual page for more information. Run the following command to remount /tmp:# mount -o remount,nodev /tmp"
     compliance:
       - cis: ["1.1.3"]
       - pci_dss: ["2.2.4"]
@@ -210,7 +210,7 @@ checks:
     title: "Ensure nosuid option set on /tmp partition"
     description: "The nosuid mount option specifies that the filesystem cannot contain setuid files."
     rationale: "Since the /tmp filesystem is only intended for temporary file storage, set this option to ensure that users cannot create setuid files in /tmp."
-    remediation: "Edit /etc/systemd/system/local-fs.target.wants/tmp.mount to add nosuid to the /tmp mount options: Options=mode=1777,strictatime,noexec,nodev,nosuid"
+    remediation: "Edit the /etc/fstab file and add nosuid to the fourth field (mounting options) for the /tmp partition. See the fstab(5)manual page for more information. Run the following command to remount /tmp: # mount -o remount,nosuid /tmp"
     compliance:
       - cis: ["1.1.4"]
       - pci_dss: ["2.2.4"]
@@ -225,7 +225,7 @@ checks:
     title: "Ensure noexec option set on /tmp partition"
     description: "The noexec mount option specifies that the filesystem cannot contain executable binaries."
     rationale: "Since the /tmp filesystem is only intended for temporary file storage, set this option to ensure that users cannot run executable binaries from /tmp."
-    remediation: "Edit /etc/systemd/system/local-fs.target.wants/tmp.mount to add noexec to the /tmp mount options: Options=mode=1777,strictatime,noexec,nodev,nosuid"
+    remediation: "Edit the /etc/fstab file and add noexec to the fourth field (mounting options) for the /tmp partition. See the fstab(5)manual page for more information. Run the following command to remount /tmp: # mount -o remount,noexec /tmp"
     compliance:
       - cis: ["1.1.5"]
       - cis_csc: ["2"]
@@ -433,7 +433,7 @@ checks:
     title: "Disable Automounting"
     description: "autofs allows automatic mounting of devices, typically including CD/DVDs and USB drives."
     rationale: "With automounting enabled anyone with physical access could attach a USB drive or disc and have its contents available in system even if they lacked permissions to mount it themselves."
-    remediation: "Run the following command to disable autofs : chkconfig autofs off"
+    remediation: "Run the following command to disable autofs: # chkconfig autofs off"
     compliance:
       - cis: ["1.1.22"]
       - cis_csc: ["8.3"]
@@ -442,7 +442,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*autofs:\s*\t*on'
+      - 'c:chkconfig --list autofs -> r:^\s*\t*autofs\.*on'
 
 ###############################################
 # 1.2 Configure Software Updates
@@ -466,6 +466,20 @@ checks:
     rules:
       - 'f:/etc/yum.conf -> r:^gpgcheck=1'
       - 'not c:grep -Rh ^gpgcheck /etc/yum.repos.d/ -> r:gpgcheck=0'
+
+# 1.2.5 Disable the rhnsd Daemon (Not Scored)
+  - id: 5707 
+    title: "Disable the rhnsd Daemon"
+    description: "The rhnsd daemon polls the Red Hat Network web site for scheduled actions and, if there are, executes those actions."
+    rationale: "Patch management policies may require that organizations test the impact of a patch before it is deployed in a production environment. Having patches automatically deployed could have a negative impact on the environment. It is best to not allow an action by default but only after appropriate consideration has been made. It is recommended that the service be disabled unless the risk is understood and accepted or you are running your own satellite . This item is not scored because organizations may have addressed the risk."
+    remediation: "Run the following command to disable rhnsd : # chkconfig rhnsd off"
+    compliance:
+      - cis: ["1.2.5"]
+      - pci_dss: ["2.2.5"]
+      - tsc: ["CC6.3"]
+    condition: all
+    rules:
+      - 'c:chkconfig --list rhnsd -> r:^rhnsd\s*\t*0:off\s*\t*1:off\s*\t*2:off\s*\t*3:off\s*\t*4:off\s*\t*5:off\s*\t*6:off'
 
 
 ###############################################
@@ -528,7 +542,7 @@ checks:
     title: "Ensure bootloader password is set"
     description: "Setting the boot loader password will require that anyone rebooting the system must enter a password before being able to set command line boot parameters."
     rationale: "Requiring a boot password upon execution of the boot loader will prevent an unauthorized user from entering boot parameters or changing the boot partition. This prevents users from weakening security (e.g. turning off SELinux at boot time)."
-    remediation: "Create an encrypted password with grub-md5-crypt :  grub-md5-crypt Password: <password>       Retype Password: <password> <encrypted-password> Copy and paste the <encrypted-password> into the global section of /boot/grub/grub.conf : password --md5 <encrypted-password>"
+    remediation: "Create an encrypted password with grub-md5-crypt: # grub-md5-crypt Password: <password>       Retype Password: <password> <encrypted-password>          Copy and paste the <encrypted-password> into the global section of /boot/grub/grub.conf : password --md5 <encrypted-password>"
     compliance:
       - cis: ["1.4.2"]
       - cis_csc: ["5.1"]
@@ -542,9 +556,9 @@ checks:
 # 1.4.3 Single user authentication
   - id: 5030 
     title: "Ensure authentication required for single user mode"
-    description: "Single user mode (rescue mode) is used for recovery when the system detects an issue during boot or by manual selection from the bootloader."
-    rationale: "Requiring authentication in single user mode (rescue mode) prevents an unauthorized user from rebooting the system into single user to gain root privileges without credentials."
-    remediation: "Edit /etc/sysconfig/init and set SINGLE to ' /sbin/sulogin ' SINGLE=/sbin/sulogin"
+    description: "Single user mode is used for recovery when the system detects an issue during boot or by manual selection from the bootloader."
+    rationale: "Requiring authentication in single user mode prevents an unauthorized user from rebooting the system into single user to gain root privileges without credentials."
+    remediation: "Edit /etc/sysconfig/init and set SINGLE to ' /sbin/sulogin':  SINGLE=/sbin/sulogin"
     compliance:
       - cis: ["1.4.3"]
       - cis_csc: ["5.1"]
@@ -576,7 +590,7 @@ checks:
     title: "Ensure core dumps are restricted"
     description: "A core dump is the memory of an executable program. It is generally used to determine why a program aborted. It can also be used to glean confidential information from a core file."
     rationale: "Setting a hard limit on core dumps prevents users from overriding the soft variable. If core dumps are required, consider setting limits for user groups (see limits.conf). In addition, setting the fs.suid_dumpable variable to 0 will prevent setuid programs from dumping core."
-    remediation: "Add the following line to /etc/security/limits.conf or a /etc/security/limits.d/* file: * hard core 0. Set the following parameter in /etc/sysctl.conf or a /etc/sysctl.d/* file: fs.suid_dumpable = 0 and set the active kernel parameter"
+    remediation: "Add the following line to /etc/security/limits.conf or a /etc/security/limits.d/* file: * hard core 0. Set the following parameter in /etc/sysctl.conf or a /etc/sysctl.d/* file: fs.suid_dumpable = 0 and Run the following command to set the active kernel parameter: # sysctl -w fs.suid_dumpable=0"
     compliance:
       - cis: ["1.5.1"]
       - cis_csc: ["13"]
@@ -672,10 +686,10 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:sestatus -> r:^SELinux status:\s+enabled$'
-      - 'c:sestatus -> r:^Current mode:\s+enforcing$'
-      - 'c:sestatus -> r:^Mode from config file:\s+enforcing$'
-      - 'f:/etc/selinux/config -> r:^SELINUX=enforcing'
+      - 'c:sestatus -> r:^SELinux status:\s+enabled'
+      - 'c:sestatus -> r:^Current mode:\s+enforcing'
+      - 'c:sestatus -> r:^Mode from config file:\s+enforcing'
+      - 'f:/etc/selinux/config -> r:^SELINUX\s*=\s*enforcing'
 
 # 1.6.1.3 Set selinux policy
   - id: 5038 
@@ -690,7 +704,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:sestatus -> r:^Policy from config file:\s+targeted$|^Policy from config file:\s+mls$'
+      - 'c:sestatus -> r:^Policy from config file:\s+targeted|^Policy from config file:\s+mls'
       - 'f:/etc/selinux/config -> r:^\s*SELINUXTYPE\s*=\s*targeted|^\s*SELINUXTYPE\s*=\s*mls'
 
 # 1.6.1.4 Remove SETroubleshoot
@@ -872,7 +886,7 @@ checks:
       - 'f:/etc/dconf/db/gdm.d/01-banner-message -> r:banner-message-text=\.+'
 
 
-# 1.8 Ensure updates, patches, and additional security software are installed(Scored)
+# 1.8 Ensure updates, patches, and additional security software are installed (Not Scored)
   - id: 5050 
     title: "Ensure updates, patches, and additional security software are installed"
     description: "Periodically patches are released for included software either due to security flaws or to include additional functionality."
@@ -889,7 +903,7 @@ checks:
       - tsc: ["A1.2"]
     condition: all
     rules:
-      - 'c:yum check-update --security -> r:No packages needed for security'
+      - 'c:yum check-update -> r:No packages needed for security'
 
 
 ###############################################
@@ -1113,7 +1127,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*xinetd\.*on'
+      - 'c:chkconfig --list xinetd -> r:^\s*\t*xinetd\.*on'
 
 
 ###############################################
@@ -1203,7 +1217,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*avahi-daemon\.*on'
+      - 'c:chkconfig --list avahi-daemon -> r:^\s*\t*avahi-daemon\.*on'
 
 # 2.2.4 Ensure CUPS is not enabled (Scored)
   - id: 5067 
@@ -1219,7 +1233,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*cups\.*on'
+      - 'c:chkconfig --list cups -> r:^\s*\t*cups\.*on'
 
 # 2.2.5 Remove DHCP Server (Scored)
   - id: 5068 
@@ -1237,7 +1251,7 @@ checks:
       - More detailed documentation on DHCP is available at https://www.isc.org/software/dhcp
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*dhcpd\.*on'
+      - 'c:chkconfig --list dhcpd -> r:^\s*\t*dhcpd\.*on'
 
 # 2.2.6 Remove LDAP Server (Scored)
   - id: 5069 
@@ -1255,7 +1269,7 @@ checks:
       - More detailed documentation on OpenLDAP is available at https://www.openldap.org
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*slapd\.*on'
+      - 'c:chkconfig --list slapd -> r:^\s*\t*slapd\.*on'
 
 
 
@@ -1264,7 +1278,7 @@ checks:
     title: "Ensure NFS and RPC are not enabled"
     description: "The Network File System (NFS) is one of the first and most widely distributed file systems in the UNIX environment. It provides the ability for systems to mount file systems of other servers through the network."
     rationale: "If the system does not export NFS shares or act as an NFS client, it is recommended that these services be disabled to reduce remote attack surface."
-    remediation: "Run the following commands to disable nfs, nfs-server and rpcbind: # chkconfig nfs off; # chkconfig nfs-server; off # chkconfig rpcbind off"
+    remediation: "Run the following commands to disable nfs, nfs-server and rpcbind: # chkconfig nfs off; # chkconfig rpcbind off"
     compliance:
       - cis: ["2.2.7"]
       - cis_csc: ["9.1"]
@@ -1273,8 +1287,8 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*nfs\.*on'
-      - 'c:chkconfig --list -> r:^\s*\t*rpcbind\.*on'
+      - 'c:chkconfig --list nfs -> r:^\s*\t*nfs\.*on'
+      - 'c:chkconfig --list rpcbind -> r:^\s*\t*rpcbind\.*on'
 
 # 2.2.8 Ensure DNS Server is not enabled (Scored)
   - id: 5071 
@@ -1290,7 +1304,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*named\.*on'
+      - 'c:chkconfig --list named -> r:^\s*\t*named\.*on'
 
 # 2.2.9 Remove FTP Server (Scored)
   - id: 5072 
@@ -1306,7 +1320,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*vsftpd\.*on'
+      - 'c:chkconfig --list vsftpd -> r:^\s*\t*vsftpd\.*on'
 
 # 2.2.10 Remove HTTP Server (Scored)
   - id: 5073 
@@ -1322,7 +1336,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*httpd\.*on'
+      - 'c:chkconfig --list httpd -> r:^\s*\t*httpd\.*on'
 
 # 2.2.11 Remove Dovecot (IMAP and POP3 services) (Scored)
   - id: 5074 
@@ -1338,7 +1352,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*dovecot\.*on'
+      - 'c:chkconfig --list dovecot -> r:^\s*\t*dovecot\.*on'
 
 # 2.2.12 Remove Samba (Scored)
   - id: 5075 
@@ -1354,7 +1368,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*smb\.*on'
+      - 'c:chkconfig --list smb -> r:^\s*\t*smb\.*on'
 
 # 2.2.13 Remove HTTP Proxy Server (Scored)
   - id: 5076 
@@ -1370,7 +1384,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*squid\.*on'
+      - 'c:chkconfig --list squid -> r:^\s*\t*squid\.*on'
 
 # 2.2.14 Remove SNMP Server (Not Scored)
   - id: 5077 
@@ -1386,7 +1400,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*snmpd\.*on'
+      - 'c:chkconfig --list snmpd -> r:^\s*\t*snmpd\.*on'
 
 # 2.2.15 Ensure mail transfer agent is configured for local-only mode (Scored)
   - id: 5078 
@@ -1421,7 +1435,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*ypserv\.*on'
+      - 'c:chkconfig --list ypserv -> r:^\s*\t*ypserv\.*on'
 
 
 ###############################################
@@ -2198,9 +2212,9 @@ the potential attack surface."
 # 4.1.10 Ensure discretionary access control permission modification events are collected (Scored)
   - id: 5120 
     title: "Ensure discretionary access control permission modification events are collected"
-    description: "Monitor changes to file permissions, attributes, ownership and group. The parameters in this section track changes for system calls that affect file permissions and attributes. The chmod , fchmod and fchmodat system calls affect the permissions associated with a file. The chown , fchown , fchownat and lchown system calls affect owner and group attributes on a file. The setxattr , lsetxattr , fsetxattr (set extended file attributes) and removexattr , lremovexattr , fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system user ids (auid >= 1000) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier \"perm_mod.\""
+    description: "Monitor changes to file permissions, attributes, ownership and group. The parameters in this section track changes for system calls that affect file permissions and attributes. The chmod , fchmod and fchmodat system calls affect the permissions associated with a file. The chown , fchown , fchownat and lchown system calls affect owner and group attributes on a file. The setxattr , lsetxattr , fsetxattr (set extended file attributes) and removexattr , lremovexattr , fremovexattr (remove extended file attributes) control extended file attributes. In all cases, an audit record will only be written for non-system user ids (auid >= 500) and will ignore Daemon events (auid = 4294967295). All audit records will be tagged with the identifier \"perm_mod.\""
     rationale: "Monitoring for changes in file attributes could alert a system administrator to activity that could indicate intruder activity or policy violation."
-    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lrem"
+    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod   -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lrem"
     compliance:
       - cis: ["4.1.10"]
       - cis_csc: ["3.6"]
@@ -2212,16 +2226,16 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod'
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod'
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod'
+      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
+      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
 
 # 4.1.11 Ensure unsuccessful unauthorized file access attempts are collected (Scored)
   - id: 5121 
     title: "Ensure unsuccessful unauthorized file access attempts are collected"
-    description: "Monitor for unsuccessful attempts to access files. The parameters below are associated  with system calls that control creation ( creat ), opening ( open , openat ) and truncation (  truncate , ftruncate ) of files. An audit log record will only be written if the user is a non-  privileged user (auid > = 1000), is not a Daemon event (auid=4294967295) and if the  system call returned EACCES (permission denied to the file) or EPERM (some other  permanent error associated with the specific system call). All audit records will be tagged  with the identifier \"access.\""
+    description: "Monitor for unsuccessful attempts to access files. The parameters below are associated  with system calls that control creation ( creat ), opening ( open , openat ) and truncation (  truncate , ftruncate ) of files. An audit log record will only be written if the user is a non-  privileged user (auid > = 500), is not a Daemon event (auid=4294967295) and if the  system call returned EACCES (permission denied to the file) or EPERM (some other  permanent error associated with the specific system call). All audit records will be tagged  with the identifier \"access.\""
     rationale: "Failed attempts to open, create or truncate files could be an indication that an individual or process is trying to gain unauthorized access to the system."
-    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access   -a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access"
+    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access   -a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access   -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access"
     compliance:
       - cis: ["4.1.11"]
       - cis_csc: ["14.6"]
@@ -2233,15 +2247,15 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access'
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access'
+      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access'
+      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access'
 
 # 4.1.13 Ensure successful file system mounts are collected (Scored)
   - id: 5122 
     title: "Ensure successful file system mounts are collected"
     description: "Monitor the use of the mount system call. The mount (and umount ) system call controls the mounting and unmounting of file systems. The parameters below configure the system to create an audit record when the mount system call is used by a non-privileged user."
     rationale: "It is highly unusual for a non privileged user to mount file systems to the system. While tracking mount commands gives the system administrator evidence that external media may have been mounted (based on a review of the source of the mount and confirming it's an external media type), it does not conclusively indicate that data was exported to the media. System administrators who wish to determine if data were exported, would also have to track successful open , creat and truncate system calls requiring write access to a file under the mount point of the external media file system. This could give a fair indication that a write occurred. The only way to truly prove it, would be to track successful writes to the external media. Tracking write system calls could quickly fill up the audit log and is not recommended. Recommendations on configuration options to track data export to media is beyond the scope of this document."
-    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts   -a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts"
+    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k mounts   -a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts"
     compliance:
       - cis: ["4.1.13"]
       - cis_csc: ["13"]
@@ -2253,7 +2267,7 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts'
+      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts'
 
 
 # 4.1.14 Ensure file deletion events by users are collected (Scored)
@@ -2261,14 +2275,14 @@ the potential attack surface."
     title: "Ensure file deletion events by users are collected"
     description: "Monitor the use of system calls associated with the deletion or renaming of files and file attributes. This configuration statement sets up monitoring for the unlink (remove a file), unlinkat (remove a file attribute), rename (rename a file) and renameat (rename a file attribute) system calls and tags them with the identifier \"delete\"."
     rationale: "Monitoring these calls from non-privileged users could provide a system administrator with evidence that inappropriate removal of files and file attributes associated with protected files is occurring. While this audit option will look at all events, system administrators will want to look for specific privileged files that are being deleted or altered."
-    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete   -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete"
+    remediation: "For 32 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete   For 64 bit systems add the following lines to the /etc/audit/audit.rules file:   -a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete   -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete"
     compliance:
       - cis: ["4.1.14"]
       - pci_dss: ["10.5.5"]
       - tsc: ["PI1.4","PI1.5","CC7.1","CC7.2","CC7.3","CC8.1"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete'
+      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete'
 
 # 4.1.15 Ensure changes to system administration scope (sudoers) is collected (Scored)
   - id: 5124 
