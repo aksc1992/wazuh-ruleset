@@ -28,6 +28,7 @@ requirements:
     - 'f:/etc/redhat-release -> r:^Oracle && r:release 6'
     - 'f:/etc/redhat-release -> r:^Better && r:release 6'
     - 'f:/etc/system-release -> r:^Amazon Linux AMI'
+    - 'f:/etc/redhat-release -> r:^CentOS && r:release 6'
 
 variables:
   $sshd_file: /etc/ssh/sshd_config
@@ -929,8 +930,8 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*chargen-dgram:\s*\t*on'
-      - 'c:chkconfig --list -> r:^\s*\t*chargen-stream:\s*\t*on'
+      - 'c:chkconfig --list chargen-dgram -> r:^\s*\t*chargen-dgram:\s*\t*on'
+      - 'c:chkconfig --list chargen-stream-> r:^\s*\t*chargen-stream:\s*\t*on'
 
 # 2.1.2 Disable daytime services (Scored)
   - id: 5052 
@@ -949,8 +950,8 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*daytime-dgram:\s*\t*on'
-      - 'c:chkconfig --list -> r:^\s*\t*daytime-stream:\s*\t*on'
+      - 'c:chkconfig --list daytime-dgram -> r:^\s*\t*daytime-dgram:\s*\t*on'
+      - 'c:chkconfig --list daytime-stream -> r:^\s*\t*daytime-stream:\s*\t*on'
 
 # 2.1.3 Disable discard services (Scored)
   - id: 5053 
@@ -969,8 +970,8 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*discard-dgram:\s*\t*on'
-      - 'c:chkconfig --list -> r:^\s*\t*discard-stream:\s*\t*on'
+      - 'c:chkconfig --list discard-dgram -> r:^\s*\t*discard-dgram:\s*\t*on'
+      - 'c:chkconfig --list discard-stream -> r:^\s*\t*discard-stream:\s*\t*on'
 
 # 2.1.4 Disable echo-dgram (Scored)
   - id: 5054 
@@ -989,8 +990,8 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*echo-dgram:\s*\t*on'
-      - 'c:chkconfig --list -> r:^\s*\t*echo-stream:\s*\t*on'
+      - 'c:chkconfig --list echo-dgram -> r:^\s*\t*echo-dgram:\s*\t*on'
+      - 'c:chkconfig --list echo-stream -> r:^\s*\t*echo-stream:\s*\t*on'
 
 # 2.1.5 Disable time-stream (Scored)
   - id: 5055 
@@ -1009,8 +1010,8 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*time-dgram:\s*\t*on'
-      - 'c:chkconfig --list -> r:^\s*\t*time-stream:\s*\t*on'
+      - 'c:chkconfig --list time-dgram -> r:^\s*\t*time-dgram:\s*\t*on'
+      - 'c:chkconfig --list time-stream -> r:^\s*\t*time-stream:\s*\t*on'
 
 # 2.1.6 Remove rsh-server (Scored)
   - id: 5056 
@@ -1029,9 +1030,9 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*rexec:\s*\t*on'
-      - 'c:chkconfig --list -> r:^\s*\t*rlogin:\s*\t*on'
-      - 'c:chkconfig --list -> r:^\s*\t*rsh:\s*\t*on'
+      - 'c:chkconfig --list rexec -> r:^\s*\t*rexec:\s*\t*on'
+      - 'c:chkconfig --list rlogin -> r:^\s*\t*rlogin:\s*\t*on'
+      - 'c:chkconfig --list rsh -> r:^\s*\t*rsh:\s*\t*on'
 
 
 # 2.1.7 Remove talk server (Scored)
@@ -1051,7 +1052,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*talk:\s*\t*on'
+      - 'c:chkconfig --list talk -> r:^\s*\t*talk:\s*\t*on'
 
 # 2.1.8 Remove telnet-server (Scored)
   - id: 5058 
@@ -1070,7 +1071,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*telnet:\s*\t*on'
+      - 'c:chkconfig --list telnet -> r:^\s*\t*telnet:\s*\t*on'
 
 # 2.1.9 Ensure tftp server is not enabled (Scored)
   - id: 5059 
@@ -1089,7 +1090,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*tftp:\s*\t*on'
+      - 'c:chkconfig --list tftp -> r:^\s*\t*tftp:\s*\t*on'
 
 # 2.1.10 Remove rsync service (Scored)
   - id: 5060 
@@ -1108,7 +1109,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:chkconfig --list -> r:^\s*\t*rsync:\s*\t*on'
+      - 'c:chkconfig --list rsync -> r:^\s*\t*rsync:\s*\t*on'
 
 # 2.1.11 Remove xinetd (Scored)
   - id: 5061 
@@ -1167,7 +1168,7 @@ checks:
     rules:
       - 'f:/etc/ntp.conf -> r:^restrict\s+-4\s+default|^restrict\s+default && r:\s+kod\s+ && r:\s+nomodify\s+ && r:\s+notrap\s+ && r:\s+nopeer\s+ && r:\s+noquery'
       - 'f:/etc/ntp.conf -> r:^restrict\s+-6\s+default && r:\s+kod\s+ && r:\s+nomodify\s+ && r:\s+notrap\s+ && r:\s+nopeer\s+ && r:\s+noquery'
-      - 'f:/etc/ntp.conf -> r:^server\.+$|^pool\.+$'
+      - 'f:/etc/ntp.conf -> r:^server\.+|^pool\.+'
       - 'f:/etc/sysconfig/ntpd -> r:^OPTIONS\s*=\s* && r:-u ntp:ntp'
 
 # 2.2.1.3 Configure Network Time Protocol (Chrony) (Scored)
@@ -1184,7 +1185,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'f:/etc/chrony.conf -> r:^server\.+$|^pool\.+$'
+      - 'f:/etc/chrony.conf -> r:^server\.+|^pool\.+'
       - 'f:/etc/sysconfig/chronyd -> r:^OPTIONS\s*=\s* && r:-u chrony'
 
 # 2.2.2 Remove X Windows (Scored)
@@ -1416,7 +1417,7 @@ checks:
       - tsc: ["CC5.2","CC6.4","CC6.6","CC6.7"]
     condition: none
     rules:
-      - 'c:netstat -an -> r:\.*:25\.*LISTEN && !r:127.0.0.1:25\.+LISTEN|::1:25\.*LISTEN'
+      - 'c:netstat -an -> r:\.*:25\.*LISTEN && !r:127.0.0.1:25\.+LISTEN|::1:25\.+LISTEN'
 
 # 2.2.16 Remove NIS Server (Scored)
   - id: 5079 
@@ -1456,9 +1457,9 @@ checks:
       - gdpr_IV: ["35.7.d"]
       - hipaa: ["164.312.b"]
       - tsc: ["CC5.2"]
-    condition: none
+    condition: all
     rules:
-      - 'c:rpm -qa ypbind -> r:ypbind'
+      - 'c:rpm -q ypbind -> package ypbind is not installed'
 
 # 2.3.2 Ensure rsh client is not installed (Scored)
   - id: 5081 
@@ -1477,7 +1478,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:rpm -q rsh -> r:^package rsh is not installed'
+      - 'c:rpm -q rsh -> package rsh is not installed'
 
 # 2.3.3 Ensure talk client is not installed (Scored)
   - id: 5082 
@@ -1496,7 +1497,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:rpm -q talk -> r:^package talk is not installed'
+      - 'c:rpm -q talk -> package talk is not installed'
 
 # 2.3.4 Ensure telnet client is not installed (Scored)
   - id: 5083 
@@ -1515,7 +1516,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:rpm -q telnet -> r:^package telnet is not installed'
+      - 'c:rpm -q telnet -> package telnet is not installed'
 
 # 2.3.5 Ensure LDAP client is not installed (Scored)
   - id: 5084 
@@ -1534,7 +1535,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:rpm -q openldap-clients -> r:^package openldap-clients is not installed'
+      - 'c:rpm -q openldap-clients -> package openldap-clients is not installed'
 
 
 ###############################################
@@ -2019,7 +2020,7 @@ the potential attack surface."
       - pci_dss: ["10.7"]
     condition: all
     rules:
-      - 'f:/etc/audit/auditd.conf -> r:^max_log_file = \d+'
+      - 'f:/etc/audit/auditd.conf -> r:^max_log_file\s*=\s*\d+'
 
 # 4.1.1.2 Ensure system is disabled when audit logs are full (Scored)
   - id: 5110 
@@ -2101,9 +2102,9 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> r:-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change'
-      - 'f:/etc/audit/audit.rules -> r:-a always,exit -F arch=b32 -S clock_settime -k time-change'
-      - 'f:/etc/audit/audit.rules -> r:-w /etc/localtime -p wa -k time-change'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S adjtimex && r:-S settimeofday && r:-S stime && r:-k time-change'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S clock_settime && r:-k time-change'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/localtime && r:-p wa && r:-k time-change'
 
 # 4.1.5 Ensure events that modify user/group information are collected (Scored)
   - id: 5115 
@@ -2122,11 +2123,11 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -w /etc/group -p wa -k identity'
-      - 'f:/etc/audit/audit.rules -> -w /etc/passwd -p wa -k identity'
-      - 'f:/etc/audit/audit.rules -> -w /etc/gshadow -p wa -k identity'
-      - 'f:/etc/audit/audit.rules -> -w /etc/shadow -p wa -k identity'
-      - 'f:/etc/audit/audit.rules -> -w /etc/security/opasswd -p wa -k identity'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/group && r:-p wa && r:-k identity'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/passwd && r:-p wa && r:-k identity'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/gshadow && r:-p wa && r:-k identity'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/shadow && r:-p wa && r:-k identity'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/security/opasswd && r:-p wa && r:-k identity'
 
 # 4.1.6 Ensure events that modify the system's network environment are collected (Scored)
   - id: 5116 
@@ -2145,12 +2146,12 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> r:-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale'
-      - 'f:/etc/audit/audit.rules -> r:-w /etc/issue -p wa -k system-locale'
-      - 'f:/etc/audit/audit.rules -> r:-w /etc/issue.net -p wa -k system-locale'
-      - 'f:/etc/audit/audit.rules -> r:-w /etc/hosts -p wa -k system-locale'
-      - 'f:/etc/audit/audit.rules -> r:-w /etc/sysconfig/network -p wa -k system-locale'
-      - 'f:/etc/audit/audit.rules -> r:-w /etc/sysconfig/network-scripts/ -p wa -k system-locale'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S sethostname && r:-S setdomainname && r:-k system-locale'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/issue && r:-p wa && r:-k system-locale'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/issue.net && r:-p wa && r:-k system-locale'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/hosts && r:-p wa && r:-k system-locale'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/sysconfig/network && r:-p wa && r:-k system-locale'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/sysconfig/network-scripts/ && r:-p wa && r:-k system-locale'
 
 # 4.1.7 Ensure events that modify the system's Mandatory Access Controls are collected (Scored)
   - id: 5117 
@@ -2169,8 +2170,8 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> r:-w /etc/selinux/ -p wa -k MAC-policy'
-      - 'f:/etc/audit/audit.rules -> r:-w /usr/share/selinux/ -p wa -k MAC-policy'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/selinux/ && r:-p wa && r:-k MAC-policy'
+      - 'f:/etc/audit/audit.rules -> r:-w /usr/share/selinux/ && r:-p wa && r:-k MAC-policy'
 
 # 4.1.8 Ensure login and logout events are collected (Scored)
   - id: 5118 
@@ -2189,8 +2190,8 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> r:-w /var/log/lastlog -p wa -k logins'
-      - 'f:/etc/audit/audit.rules -> r:-w /var/run/faillock/ -p wa -k logins'
+      - 'f:/etc/audit/audit.rules -> r:-w /var/log/lastlog && r:-p wa && r:-k logins'
+      - 'f:/etc/audit/audit.rules -> r:-w /var/run/faillock/ && r:-p wa && r:-k logins'
 
 # 4.1.9 Ensure session initiation information is collected (Scored)
   - id: 5119 
@@ -2205,9 +2206,9 @@ the potential attack surface."
       - pci_dss: ["10.3"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> r:-w /var/run/utmp -p wa -k session'
-      - 'f:/etc/audit/audit.rules -> r:-w /var/log/wtmp -p wa -k logins'
-      - 'f:/etc/audit/audit.rules -> r:-w /var/log/btmp -p wa -k logins'
+      - 'f:/etc/audit/audit.rules -> r:-w /var/run/utmp && r:-p wa && r:-k session'
+      - 'f:/etc/audit/audit.rules -> r:-w /var/log/wtmp && r:-p wa && r:-k logins'
+      - 'f:/etc/audit/audit.rules -> r:-w /var/log/btmp && r:-p wa && r:-k logins'
 
 # 4.1.10 Ensure discretionary access control permission modification events are collected (Scored)
   - id: 5120 
@@ -2226,9 +2227,9 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S chmod && r:-S fchmod && r:-S fchmodat && r:-F auid>=500 && r:-F auid!=4294967295 && r:-k perm_mod'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S chown && r:-S fchown && r:-S fchownat && r:-S lchown && r:-F auid>=500 && r:-F auid!=4294967295 && r:-k perm_mod'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S setxattr && r:-S lsetxattr && r:-S fsetxattr && r:-S removexattr && r:-S lremovexattr && r:-S fremovexattr && r:-F auid>=500 && r:-F auid!=4294967295 && r:-k perm_mod'
 
 # 4.1.11 Ensure unsuccessful unauthorized file access attempts are collected (Scored)
   - id: 5121 
@@ -2247,8 +2248,8 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access'
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S creat && r:-S open && r:-S openat && r:-S truncate && r:-S ftruncate && r:-F exit=-EACCES && r:-F auid>=500 && r:-F auid!=4294967295 && r:-k access'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S creat && r:-S open && r:-S openat && r:-S truncate && r:-S ftruncate && r:-F exit=-EPERM && r:-F auid>=500 && r:-F auid!=4294967295 && r:-k access'
 
 # 4.1.13 Ensure successful file system mounts are collected (Scored)
   - id: 5122 
@@ -2267,7 +2268,7 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k mounts'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S mount && r:-F auid>=500 && r:-F auid!=4294967295 && r:-k mounts'
 
 
 # 4.1.14 Ensure file deletion events by users are collected (Scored)
@@ -2282,7 +2283,7 @@ the potential attack surface."
       - tsc: ["PI1.4","PI1.5","CC7.1","CC7.2","CC7.3","CC8.1"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b32 && r:-S unlink && r:-S unlinkat && r:-S rename && r:-S renameat && r:-F auid>=500 && r:-F auid!=4294967295 && r:-k delete'
 
 # 4.1.15 Ensure changes to system administration scope (sudoers) is collected (Scored)
   - id: 5124 
@@ -2301,8 +2302,8 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -w /etc/sudoers -p wa -k scope'
-      - 'f:/etc/audit/audit.rules -> -w /etc/sudoers.d/ -p wa -k scope'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/sudoers && r:-p wa && r:-k scope'
+      - 'f:/etc/audit/audit.rules -> r:-w /etc/sudoers.d/ && r:-p wa && r:-k scope'
 
 # 4.1.16 Ensure system administrator actions (sudolog) are collected (Scored)
   - id: 5125 
@@ -2321,7 +2322,7 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -w /var/log/sudo.log -p wa -k actions'
+      - 'f:/etc/audit/audit.rules -> r:-w /var/log/sudo.log && r:-p wa && r:-k actions'
 
 # 4.1.17 Ensure kernel module loading and unloading is collected (Scored)
   - id: 5126 
@@ -2340,10 +2341,10 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'f:/etc/audit/audit.rules -> -w /sbin/insmod -p x -k modules'
-      - 'f:/etc/audit/audit.rules -> -w /sbin/rmmod -p x -k modules'
-      - 'f:/etc/audit/audit.rules -> -w /sbin/modprobe -p x -k modules'
-      - 'f:/etc/audit/audit.rules -> r:-a always,exit -F arch=b\d\d -S init_module -S delete_module -k modules'
+      - 'f:/etc/audit/audit.rules -> r:-w /sbin/insmod && r:-p x && r:-k modules'
+      - 'f:/etc/audit/audit.rules -> r:-w /sbin/rmmod && r:-p x && r:-k modules'
+      - 'f:/etc/audit/audit.rules -> r:-w /sbin/modprobe && r:-p x && r:-k modules'
+      - 'f:/etc/audit/audit.rules -> r:^-a && r:always,exit|exit,always && r:-F arch=b\d\d && r:-S init_module && r:-S delete_module && r:-k modules'
 
 # 4.1.18 Ensure the audit configuration is immutable (Scored)
   - id: 5127 
@@ -2357,7 +2358,7 @@ the potential attack surface."
       - pci_dss: ["10.5"]
     condition: all
     rules:
-      - 'c:tail -1 /etc/audit/audit.rules -> -e 2'
+      - 'c:tail -1 /etc/audit/audit.rules -> r:^-e 2'
 
 ###############################################
 # 4.2 Configure Logging
@@ -2386,7 +2387,7 @@ the potential attack surface."
       - cis_csc: ["5.1"]  
     condition: all
     rules:
-      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 0600|^\$FileCreateMode 0640'
+      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 0600|^\$FileCreateMode 0640|^\$FileCreateMode 0440|^\$FileCreateMode 0400|^\$FileCreateMode 0040|^\$FileCreateMode 0000'
 
 # 4.2.1.4 Ensure rsyslog is configured to send logs to a remote log host (Scored)
   - id: 5130 
@@ -2440,8 +2441,8 @@ the potential attack surface."
       - cis_csc: ["6.6"]
     condition: all
     rules:
-      - 'f:/etc/syslog-ng/syslog-ng.conf -> r:destination logserver'
-      - 'f:/etc/syslog-ng/syslog-ng.conf -> r:log\.+source\.+destination'
+      - 'f:/etc/syslog-ng/syslog-ng.conf -> !r:^# && r:destination logserver'
+      - 'f:/etc/syslog-ng/syslog-ng.conf -> !r:^# && r:log\.+source\.+destination'
 
 # 4.2.3 Ensure rsyslog or syslog-ng is installed (Scored)
   - id: 5134 
@@ -2454,8 +2455,8 @@ the potential attack surface."
       - cis_csc: ["6.2"]
     condition: any
     rules:
-      - 'not c:rpm -q rsyslog -> r:^package rsyslog is not installed'
-      - 'not c:rpm -q syslog-ng -> r:^package syslog-ng is not installed'
+      - 'not c:rpm -q rsyslog -> package rsyslog is not installed'
+      - 'not c:rpm -q syslog-ng -> package syslog-ng is not installed'
 
   # 4.2.4 Ensure permissions on all logfiles are configured (Scored)
   - id: 5135 
@@ -2508,7 +2509,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/crontab -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/crontab -> r:^Access: \(0\d00/-\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.3 Ensure permissions on /etc/cron.hourly are configured (Scored)
   - id: 5138 
@@ -2524,7 +2525,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.hourly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.hourly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.4 Ensure permissions on /etc/cron.daily are configured (Scored)
   - id: 5139 
@@ -2540,7 +2541,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.daily -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.daily -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.5 Ensure permissions on /etc/cron.weekly are configured (Scored)
   - id: 5140 
@@ -2556,7 +2557,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.weekly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.weekly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 
 # 5.1.6 Ensure permissions on /etc/cron.monthly are configured (Scored)
@@ -2573,7 +2574,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.monthly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.monthly -> r:^Access: \(0\w00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.7 Ensure permissions on /etc/cron.d are configured (Scored)
   - id: 5142 
@@ -2589,7 +2590,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.d -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.d -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.8 Ensure at/cron is restricted to authorized users (Scored)
   - id: 5143 
@@ -2607,8 +2608,8 @@ the potential attack surface."
     rules:
       - 'c:stat /etc/cron.deny -> r:No such file or directory$'
       - 'c:stat /etc/at.deny -> r:No such file or directory$'
-      - 'c:stat /etc/cron.allow -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/at.allow -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.allow -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/at.allow -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 ###############################################
 # 5.2 Configure SSH
@@ -2627,7 +2628,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.2.2 Set SSH Protocol to 2 (Scored)
   - id: 5145 
@@ -2761,7 +2762,7 @@ the potential attack surface."
       - tsc: ["CC6.1","CC6.7","CC7.2"]
     condition: all
     rules:
-      - 'f:/etc/ssh/sshd_config -> r:^\s*PermitUserEnvironment\s*\t*no'
+      - 'f:$sshd_file -> !r:^# && r:PermitUserEnvironment\s*\t*no'
 
 # 5.2.12 Ensure SSH Idle Timeout Interval is configured (Scored)
   - id: 5153 
@@ -2775,8 +2776,8 @@ the potential attack surface."
       - pci_dss: ["12.3.8"]
     condition: all
     rules:
-      - 'f:/etc/ssh/sshd_config -> n:^\s*ClientAliveInterval\s*\t*(\d+) compare <= 300'
-      - 'f:/etc/ssh/sshd_config -> n:^\s*ClientAliveCountMax\s*\t*(\d+) compare <= 3'
+      - 'f:$sshd_file -> n:^\s*ClientAliveInterval\s*\t*(\d+) compare <= 300'
+      - 'f:$sshd_file -> n:^\s*ClientAliveCountMax\s*\t*(\d+) compare <= 3'
 
 # 5.2.13 Ensure SSH LoginGraceTime is set to one minute or less (Scored)
   - id: 5154 
@@ -2790,7 +2791,7 @@ the potential attack surface."
       - tsc: ["CC6.1"]
     condition: all
     rules:
-      - 'f:/etc/ssh/sshd_config -> n:^\s*LoginGraceTime\s*\t*(\d+) compare <= 60'
+      - 'f:$sshd_file -> n:^\s*LoginGraceTime\s*\t*(\d+) compare <= 60'
 
 # 5.2.14 Ensure SSH access is limited (Scored)
   - id: 5155 
@@ -2805,10 +2806,10 @@ the potential attack surface."
       - tsc: ["CC6.1"]
     condition: any
     rules:
-      - 'f:/etc/ssh/sshd_config -> r:^\s*AllowUsers'
-      - 'f:/etc/ssh/sshd_config -> r:^\s*AllowGroups'
-      - 'f:/etc/ssh/sshd_config -> r:^\s*DenyUsers'
-      - 'f:/etc/ssh/sshd_config -> r:^\s*DenyGroups'
+      - 'f:$sshd_file -> r:^\s*AllowUsers'
+      - 'f:$sshd_file -> r:^\s*AllowGroups'
+      - 'f:$sshd_file -> r:^\s*DenyUsers'
+      - 'f:$sshd_file -> r:^\s*DenyGroups'
 
 # 5.2.15 Ensure SSH warning banner is configured (Scored)
   - id: 5156 
@@ -2823,7 +2824,7 @@ the potential attack surface."
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'f:/etc/ssh/sshd_config -> r:^\s*Banner\s*\t*/etc/issue.net'
+      - 'f:$sshd_file -> r:^\s*Banner\s*\t*/etc/issue.net'
 
 ###############################################
 # 5.3 Configure PAM
