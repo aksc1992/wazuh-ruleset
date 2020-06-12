@@ -46,7 +46,7 @@ checks:
     title: "Ensure mounting of cramfs filesystems is disabled"
     description: "The cramfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems. A cramfs image can be used without having to first decompress the image."
     rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
-    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf .Example: vim /etc/modprobe.d/cramfs.conf:  and add the following line: install cramfs /bin/true. Run the following command to unload the cramfs module: rmmod cramfs"
+    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf .Example: vim /etc/modprobe.d/cramfs.conf:  and add the following line: install cramfs /bin/true. Run the following command to unload the cramfs module: # rmmod cramfs"
     compliance:
       - cis: ["1.1.1.1"]
       - cis_csc: ["5.1"]
@@ -56,12 +56,13 @@ checks:
     rules:
       - 'c:modprobe -n -v cramfs -> r:install /bin/true|Module cramfs not found'
       - 'not c:lsmod -> r:cramfs'
+
 # 1.1.1.2 vFAT: filesystem
   - id: 5501 
     title: "Ensure mounting of FAT filesystems is limited"
     description: "The VFAT filesystem format is primarily used on older windows systems and portable USB drives or flash modules. It comes in three types FAT12 , FAT16 , and FAT32 all of which are supported by the vfat kernel module."
     rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
-    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf . Example: vim /etc/modprobe.d/vfat.conf: install vfat /bin/true. Run the following command to unload the vfat module: rmmod vfat"
+    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf . Example: vim /etc/modprobe.d/vfat.conf: install vfat /bin/true. Run the following command to unload the vfat module: # rmmod vfat"
     compliance:
       - cis: ["1.1.1.2"]
       - cis_csc: ["5.1"]
@@ -93,7 +94,7 @@ checks:
     title: "Ensure mounting of udf filesystems is disabled"
     description: "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats."
     rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
-    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf. Example: vim /etc/modprobe.d/udf.conf and add the following line: install udf /bin/true. Run the following command to unload the udf module: rmmod udf"
+    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf. Example: vim /etc/modprobe.d/udf.conf and add the following line: install udf /bin/true. Run the following command to unload the udf module: # rmmod udf"
     compliance:
       - cis: ["1.1.1.4"]
       - cis_csc: ["5.1"]
@@ -752,6 +753,7 @@ checks:
       - cis: ["1.8.1.1"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: none
     rules:
       - 'f:/etc/motd -> r:\\v|\\r|\\m|\\s'
@@ -766,6 +768,7 @@ checks:
       - cis: ["1.8.1.2"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: none
     rules:
       - 'f:/etc/issue -> r:\\v|\\r|\\m|\\s'
@@ -781,6 +784,7 @@ checks:
       - cis: ["1.8.1.3"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: none
     rules:
       - 'f:/etc/issue.net -> r:\\v|\\r|\\m|\\s'
@@ -852,6 +856,7 @@ checks:
       - cis: ["1.8.2"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: all
     rules:
       - 'f:/etc/gdm3/greeter.dconf-defaults -> r:[org/gnome/login-screen]'
