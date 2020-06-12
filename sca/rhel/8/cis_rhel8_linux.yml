@@ -412,6 +412,20 @@ checks:
 # 1.2 Configure Software Updates
 ###############################################
 
+# 1.2.2 Disable the rhnsd Daemon (Not Scored)
+  - id: 5707 
+    title: "Disable the rhnsd Daemon"
+    description: "The rhnsd daemon polls the Red Hat Network web site for scheduled actions and, if there are, executes those actions."
+    rationale: "Patch management policies may require that organizations test the impact of a patch before it is deployed in a production environment. Having patches automatically deployed could have a negative impact on the environment. It is best to not allow an action by default but only after appropriate consideration has been made. It is recommended that the service be disabled unless the risk is understood and accepted or you are running your own satellite . This item is not scored because organizations may have addressed the risk."
+    remediation: "Run the following command to disable rhnsd : # systemctl --now disable rhnsd"
+    compliance:
+      - cis: ["1.2.2"]
+      - pci_dss: ["2.2.5"]
+      - tsc: ["CC6.3"]
+    condition: all
+    rules:
+      - 'c:systemctl is-enabled rhnsd -> r:^disabled'
+
 # 1.2.4 Activate gpgcheck
   - id: 5522 
     title: "Ensure gpgcheck is globally activated"
