@@ -46,7 +46,7 @@ checks:
     title: "Ensure mounting of cramfs filesystems is disabled"
     description: "The cramfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems. A cramfs image can be used without having to first decompress the image."
     rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the server. If this filesystem type is not needed, disable it."
-    remediation: "Edit or create the file /etc/modprobe.d/CIS.conf and add the following line: install cramfs /bin/true. Run the following command to unload the cramfs module: rmmod cramfs"
+    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf .Example: vim /etc/modprobe.d/cramfs.conf:  and add the following line: install cramfs /bin/true. Run the following command to unload the cramfs module: # rmmod cramfs"
     compliance:
       - cis: ["1.1.1.1"]
       - cis_csc: ["5.1"]
@@ -56,12 +56,13 @@ checks:
     rules:
       - 'c:modprobe -n -v cramfs -> r:install /bin/true|Module cramfs not found'
       - 'not c:lsmod -> r:cramfs'
+
 # 1.1.1.2 vFAT: filesystem
   - id: 5501 
     title: "Ensure mounting of FAT filesystems is limited"
     description: "The VFAT filesystem format is primarily used on older windows systems and portable USB drives or flash modules. It comes in three types FAT12 , FAT16 , and FAT32 all of which are supported by the vfat kernel module."
     rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
-    remediation: "Edit or create the file /etc/modprobe.d/CIS.conf and add the following line: install vfat /bin/true. Run the following command to unload the vfat module: rmmod vfat"
+    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf . Example: vim /etc/modprobe.d/vfat.conf: install vfat /bin/true. Run the following command to unload the vfat module: # rmmod vfat"
     compliance:
       - cis: ["1.1.1.2"]
       - cis_csc: ["5.1"]
@@ -77,7 +78,7 @@ checks:
     title: "Ensure mounting of squashfs filesystems is disabled"
     description: "The squashfs filesystem type is a compressed read-only Linux filesystem embedded in small footprint systems (similar to cramfs ). A squashfs image can be used without having to first decompress the image."
     rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
-    remediation: "Edit or create the file /etc/modprobe.d/CIS.conf and add the following line: install squashfs /bin/true. Run the following command to unload the squashfs module: rmmod squashfs"
+    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf . Example: vim /etc/modprobe.d/squashfs.conf and add the following line: install squashfs /bin/true. Run the following command to unload the squashfs module: rmmod squashfs"
     compliance:
       - cis: ["1.1.1.3"]
       - cis_csc: ["5.1"]
@@ -93,7 +94,7 @@ checks:
     title: "Ensure mounting of udf filesystems is disabled"
     description: "The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and ECMA-167 specifications. This is an open vendor filesystem type for data storage on a broad range of media. This filesystem type is necessary to support writing DVDs and newer optical disc formats."
     rationale: "Removing support for unneeded filesystem types reduces the local attack surface of the system. If this filesystem type is not needed, disable it."
-    remediation: "Edit or create the file /etc/modprobe.d/CIS.conf and add the following line: install udf /bin/true. Run the following command to unload the udf module: rmmod udf"
+    remediation: "Edit or create a file in the /etc/modprobe.d/ directory ending in .conf. Example: vim /etc/modprobe.d/udf.conf and add the following line: install udf /bin/true. Run the following command to unload the udf module: # rmmod udf"
     compliance:
       - cis: ["1.1.1.4"]
       - cis_csc: ["5.1"]
@@ -117,10 +118,11 @@ checks:
       - pci_dss: ["2.2.4"]
       - nist_800_53: ["CM.1"]
       - tsc: ["CC5.2"]
+    references:
+      - AJ Lewis, "LVM HOWTO", https://tldp.org/HOWTO/LVM-HOWTO/
     condition: all
     rules:
       - 'c:mount -> r:\s/tmp\s'
-      - 'f:/etc/fstab -> !r:^\s*# && r:\s/tmp\s'
 
 # 1.1.3 /tmp: nodev
   - id: 5505 
@@ -386,7 +388,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled autofs -> r:enabled'
+      - 'c:systemctl is-enabled autofs -> enabled'
 
 
 # 1.1.23 Disable USB Storage (Scored)
@@ -404,11 +406,25 @@ checks:
     condition: all
     rules:
       - 'c:modprobe -n -v usb-storage -> r:install /bin/true'
-      - 'c:lsmod -> !r:usb-storage'
+      - 'not c:lsmod -> r:usb-storage'
 
 ###############################################
 # 1.2 Configure Software Updates
 ###############################################
+
+# 1.2.2 Disable the rhnsd Daemon (Not Scored)
+  - id: 5707 
+    title: "Disable the rhnsd Daemon"
+    description: "The rhnsd daemon polls the Red Hat Network web site for scheduled actions and, if there are, executes those actions."
+    rationale: "Patch management policies may require that organizations test the impact of a patch before it is deployed in a production environment. Having patches automatically deployed could have a negative impact on the environment. It is best to not allow an action by default but only after appropriate consideration has been made. It is recommended that the service be disabled unless the risk is understood and accepted or you are running your own satellite . This item is not scored because organizations may have addressed the risk."
+    remediation: "Run the following command to disable rhnsd : # systemctl --now disable rhnsd"
+    compliance:
+      - cis: ["1.2.2"]
+      - pci_dss: ["2.2.5"]
+      - tsc: ["CC6.3"]
+    condition: all
+    rules:
+      - 'c:systemctl is-enabled rhnsd -> r:^disabled'
 
 # 1.2.4 Activate gpgcheck
   - id: 5522 
@@ -501,7 +517,8 @@ checks:
       - cis_csc: ["14.9"]
       - pci_dss: ["11.5"]
       - tsc: ["PI1.4","PI1.5","CC6.8","CC7.2","CC7.3","CC7.4"]
-    references: "AIDE stable manual: http://aide.sourceforge.net/stable/manual.html"
+    references: 
+      - 'AIDE stable manual: http://aide.sourceforge.net/stable/manual.html'
     condition: all
     rules:
       - 'c:rpm -q aide -> r:aide-\S*'
@@ -511,12 +528,15 @@ checks:
     title: "Ensure filesystem integrity is regularly checked"
     description: "Periodic checking of the filesystem integrity is needed to detect changes to the filesystem."
     rationale: "Periodic file checking allows the system administrator to determine on a regular basis if critical files have been changed in an unauthorized fashion."
-    remediation: "Run the following command: crontab -u root -e // Add the following line to the crontab: 0 5 * * * /usr/sbin/aide --check  // Notes: The checking in this recommendation occurs every day at 5am. Alter the frequency and time of the checks in compliance with site policy.  "
+    remediation: " Run the following commands: # cp ./config/aidecheck.service /etc/systemd/system/aidecheck.service  # cp ./config/aidecheck.timer /etc/systemd/system/aidecheck.timer   # chmod 0644 /etc/systemd/system/aidecheck.*  # systemctl reenable aidecheck.timer # systemctl restart aidecheck.timer # systemctl daemon-reload. OR Run the following command: crontab -u root -e // Add the following line to the crontab: 0 5 * * * /usr/sbin/aide --check  // Notes: The checking in this recommendation occurs every day at 5am. Alter the frequency and time of the checks in compliance with site policy.  "
     compliance:
       - cis: ["1.3.2"]
       - cis_csc: ["3.5"]
       - pci_dss: ["11.5"]
       - tsc: ["PI1.4","PI1.5","CC6.8","CC7.2","CC7.3","CC7.4"]
+    references:
+      - 'https://github.com/konstruktoid/hardening/blob/master/config/aidecheck.service'
+      - 'https://github.com/konstruktoid/hardening/blob/master/config/aidecheck.timer'
     condition: any
     rules:
       - 'c:crontab -u root -l -> r:aide'
@@ -747,6 +767,7 @@ checks:
       - cis: ["1.8.1.1"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: none
     rules:
       - 'f:/etc/motd -> r:\\v|\\r|\\m|\\s'
@@ -761,6 +782,7 @@ checks:
       - cis: ["1.8.1.2"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: none
     rules:
       - 'f:/etc/issue -> r:\\v|\\r|\\m|\\s'
@@ -776,6 +798,7 @@ checks:
       - cis: ["1.8.1.3"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: none
     rules:
       - 'f:/etc/issue.net -> r:\\v|\\r|\\m|\\s'
@@ -847,6 +870,7 @@ checks:
       - cis: ["1.8.2"]
       - cis_csc: ["5.1"]
       - pci_dss: ["7.1"]
+      - tsc: ["CC6.4"]
     condition: all
     rules:
       - 'f:/etc/gdm3/greeter.dconf-defaults -> r:[org/gnome/login-screen]'
@@ -885,6 +909,8 @@ checks:
       - pci_dss: ["2.2.4"]
       - nist_800_53: ["CM.1"]
       - tsc: ["CC5.2"]
+    references:
+      - 'https://access.redhat.com/articles/3642912#what-polices-are-provided-1'
     condition: none
     rules:
       - 'f:/etc/crypto-policies/config -> r:^\s*LEGACY'
@@ -901,7 +927,7 @@ checks:
       - pci_dss: ["2.2.4"]
       - nist_800_53: ["CM.1"]
       - tsc: ["CC5.2"]
-    condition: none
+    condition: all
     rules:
       - 'f:/etc/crypto-policies/config -> r:^\s*FUTURE|^\s*FIPS'
     
@@ -947,7 +973,7 @@ checks:
       - pci_dss: ["10.4"]
       - nist_800_53: ["AU.8"]
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
-    condition: any
+    condition: all
     rules:
       - 'c:rpm -q chrony -> r:^chrony-'
 
@@ -963,9 +989,11 @@ checks:
       - pci_dss: ["2.2.2"]
       - nist_800_53: ["CM.1"]
       - tsc: ["CC5.2"]
+    references:
+      - 'http://chrony.tuxfamily.org/'
     condition: all
     rules:
-      - 'f:/etc/chrony.conf -> r:^server\s*\t*\.+s|^pool\s*\t*\.+'
+      - 'f:/etc/chrony.conf -> r:^server\s*\t*\.+|^pool\s*\t*\.+'
       - 'not c:ps -ef -> r:\.+/chronyd\s*\t*$ && !r:^\s*\t*chrony\s*\t*'
 
 # 2.2.2 Ensure X Window System is not installed (Scored)
@@ -1001,7 +1029,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled rsyncd -> r:^enabled'
+      - 'c:systemctl is-enabled rsyncd -> enabled'
 
 # 2.2.4 Disable Avahi Server (Scored)
   - id: 5555 
@@ -1017,7 +1045,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled avahi-daemon -> r:^enabled'
+      - 'c:systemctl is-enabled avahi-daemon -> enabled'
 
 # 2.2.5 Remove SNMP Server (Scored)
   - id: 5556 
@@ -1033,7 +1061,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled snmpd -> r:^enabled'
+      - 'c:systemctl is-enabled snmpd -> enabled'
 
 # 2.2.6 Remove HTTP Proxy Server (Scored)
   - id: 5557 
@@ -1049,7 +1077,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled squid -> r:^enabled'
+      - 'c:systemctl is-enabled squid -> enabled'
 
 # 2.2.7 Remove Samba (Scored)
   - id: 5558 
@@ -1065,7 +1093,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled smb -> r:^enabled'
+      - 'c:systemctl is-enabled smb -> enabled'
 
 # 2.2.8 Remove Dovecot (IMAP and POP3 services) (Scored)
   - id: 5559 
@@ -1081,7 +1109,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled dovecot -> r:^enabled'
+      - 'c:systemctl is-enabled dovecot -> enabled'
 
 # 2.2.9 Remove HTTP Server (Scored)
   - id: 5560 
@@ -1097,7 +1125,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled httpd -> r:^enabled'
+      - 'c:systemctl is-enabled httpd -> enabled'
 
 # 2.2.10 Remove FTP Server (Scored)
   - id: 5561 
@@ -1113,7 +1141,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled vsftpd -> r:^enabled'
+      - 'c:systemctl is-enabled vsftpd -> enabled'
 
 # 2.2.11 Ensure DNS Server is not enabled (Scored)
   - id: 5562 
@@ -1129,7 +1157,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled named -> r:^enabled'
+      - 'c:systemctl is-enabled named -> enabled'
 
 
 # 2.2.12 Ensure NFS is not enabled (Scored)
@@ -1146,7 +1174,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled nfs -> r:^enabled'
+      - 'c:systemctl is-enabled nfs -> enabled'
 
 # 2.2.13 Ensure RPC is not enabled (Scored)
   - id: 5564 
@@ -1162,7 +1190,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled rpcbind -> r:^enabled'
+      - 'c:systemctl is-enabled rpcbind -> enabled'
 
 # 2.2.14 Remove LDAP Server (Scored)
   - id: 5565 
@@ -1180,7 +1208,7 @@ checks:
       - More detailed documentation on OpenLDAP is available at https://www.openldap.org
     condition: none
     rules:
-      - 'c:systemctl is-enabled slapd -> r:^enabled'
+      - 'c:systemctl is-enabled slapd -> enabled'
 
 # 2.2.15 Remove DHCP Server (Scored)
   - id: 5566 
@@ -1198,7 +1226,7 @@ checks:
       - More detailed documentation on DHCP is available at https://www.isc.org/software/dhcp
     condition: none
     rules:
-      - 'c:systemctl is-enabled dhcpd -> r:^enabled'
+      - 'c:systemctl is-enabled dhcpd -> enabled'
 
 # 2.2.16 Ensure CUPS is not enabled (Scored)
   - id: 5567 
@@ -1212,9 +1240,11 @@ checks:
       - pci_dss: ["2.2.2"]
       - nist_800_53: ["CM.1"]
       - tsc: ["CC5.2"]
+    references:
+      - 'More detailed documentation on CUPS is available at the project homepage at http://www.cups.org.'
     condition: none
     rules:
-      - 'c:systemctl is-enabled cups -> r:^enabled'
+      - 'c:systemctl is-enabled cups -> enabled'
 
 # 2.2.17 Remove NIS Server (Scored)
   - id: 5568 
@@ -1233,7 +1263,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:systemctl is-enabled ypserv -> r:^enabled'
+      - 'c:systemctl is-enabled ypserv -> enabled'
 
 # 2.2.18 Ensure mail transfer agent is configured for local-only mode (Scored)
   - id: 5569 
@@ -1331,12 +1361,12 @@ checks:
       - pci_dss: ["2.2.4"]
       - nist_800_53: ["CM.1"]
       - tsc: ["CC5.2"]
-    condition: all
+    condition: none
     rules:
-      - 'c:grep -Rh -E -s ^\s*net.ipv4.ip_forward\s*=\s*1 /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> !r:\w+'
-      - 'c:grep -Rh -E -s ^\s*net.ipv6.conf.all.forwarding\s*=\s*1 /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> !r:\w+'
-      - 'c:sysctl net.ipv4.ip_forward -> !r:^\s*net.ipv4.ip_forward\s*=\s*0'
-      - 'c:sysctl net.ipv6.conf.all.forwarding -> !r:^\s*net.ipv6.conf.all.forwarding\s*=\s*0'
+      - 'c:grep -Rh -E -s ^\s*net.ipv4.ip_forward /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv4.ip_forward\s*=\s*1'
+      - 'c:grep -Rh -E -s ^\s*net.ipv6.conf.all.forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv6.conf.all.forwarding\s*=\s*1'
+      - 'c:sysctl net.ipv4.ip_forward -> r:^\s*net.ipv4.ip_forward\s*=\s*1'
+      - 'c:sysctl net.ipv6.conf.all.forwarding -> r:^\s*net.ipv6.conf.all.forwarding\s*=\s*1'
 
 
 # 3.1.2 Ensure packet redirect sending is disabled (Scored)
@@ -1464,7 +1494,7 @@ checks:
     condition: all
     rules:
       - 'c:sysctl net.ipv4.icmp_echo_ignore_broadcasts -> r:^\s*net.ipv4.icmp_echo_ignore_broadcasts\s*=\s*1'
-      - 'c:grep -E -s -Rh ^\s*net.ipv4.icmp_echo_ignore_broadcasts\s*=\s*0 /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> !r:\w+' 
+      - 'not c:grep -E -s -Rh ^\s*net.ipv4.icmp_echo_ignore_broadcasts /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv4.icmp_echo_ignore_broadcasts\s*=\s*0' 
 
 # 3.2.6 Ensure bogus ICMP responses are ignored (Scored)
   - id: 5580 
@@ -1481,7 +1511,7 @@ checks:
     condition: all
     rules:
       - 'c:sysctl net.ipv4.icmp_ignore_bogus_error_responses -> r:^\s*net.ipv4.icmp_ignore_bogus_error_responses\s*=\s*1'
-      - 'c:grep -E -s -Rh ^\s*net.ipv4.icmp_ignore_bogus_error_responses\s*=\s*0 /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> !r:\w+'
+      - 'not c:grep -E -s -Rh ^\s*net.ipv4.icmp_ignore_bogus_error_responses /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv4.icmp_ignore_bogus_error_responses\s*=\s*0'
 
 # 3.2.7 Ensure Reverse Path Filtering is enabled (Scored)
   - id: 5581 
@@ -1499,8 +1529,8 @@ checks:
     rules:
       - 'c:sysctl net.ipv4.conf.all.rp_filter -> r:^\s*net.ipv4.conf.all.rp_filter\s*=\s*1'
       - 'c:sysctl net.ipv4.conf.default.rp_filter -> r:^\s*net.ipv4.conf.default.rp_filter\s*=\s*1'
-      - 'c:grep -E -s -Rh ^\s*net.ipv4.conf.all.rp_filter\s*=\s*0 /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> !r:\w+'
-      - 'c:grep -E -s -Rh ^\s*net.ipv4.conf.default.rp_filter\s*=\s*1 /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv4.conf.default.rp_filter\s*=\s*1'
+      - 'not c:grep -E -s -Rh ^\s*net.ipv4.conf.all.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv4.conf.all.rp_filter\s*=\s*0'
+      - 'c:grep -E -s -Rh ^\s*net.ipv4.conf.default.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv4.conf.default.rp_filter\s*=\s*1'
 
 # 3.2.8 Ensure TCP SYN Cookies is enabled (Scored)
   - id: 5582 
@@ -1517,7 +1547,7 @@ checks:
     condition: all
     rules:
       - 'c:sysctl net.ipv4.tcp_syncookies -> r:^\s*net.ipv4.tcp_syncookies\s*=\s*1'
-      - 'c:grep -E -r -Rh ^\s*net.ipv4.tcp_syncookies\s*=\s*[02] /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> !r:\w+'
+      - 'not c:grep -E -r -Rh ^\s*net.ipv4.tcp_syncookies /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl.d/*.conf /run/sysctl.d/*.conf -> r:^\s*net.ipv4.tcp_syncookies\s*=\s*[02]'
 
 # 3.2.9 Ensure IPv6 router advertisements are not accepted (Scored)
   - id: 5583 
@@ -1561,7 +1591,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:modprobe -n -v dccp -> r:^\s*install\s*/bin/true'
+      - 'c:modprobe -n -v dccp -> r:^\s*install\s*/bin/true|Module dccp not found'
       - 'not c:lsmod -> r:dccp'
 
 # 3.3.2 Ensure SCTP is disabled (Scored)
@@ -1581,7 +1611,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:modprobe -n -v sctp -> r:^\s*install\s*/bin/true'
+      - 'c:modprobe -n -v sctp -> r:^\s*install\s*/bin/true|Module sctp not found'
       - 'not c:lsmod -> r:sctp'
 
 # 3.3.3 Ensure RDS is disabled (Scored)
@@ -1601,7 +1631,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:modprobe -n -v rds -> r:^\s*install\s*/bin/true'
+      - 'c:modprobe -n -v rds -> r:^\s*install\s*/bin/true|Module rds not found'
       - 'not c:lsmod -> r:rds'
 
 
@@ -1622,7 +1652,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:modprobe -n -v tipc -> r:^\s*install\s*/bin/true'
+      - 'c:modprobe -n -v tipc -> r:^\s*install\s*/bin/true|Module tipc not found'
       - 'not c:lsmod -> r:tipc'
 
 ###############################################
@@ -1665,8 +1695,8 @@ checks:
       - tsc: ["CC6.6"]
     condition: all
     rules:
-      - 'c:systemctl is-enabled firewalld -> r:^enabled'
-      - 'c:firewall-cmd --state -> r:^running'
+      - 'c:systemctl is-enabled firewalld -> enabled'
+      - 'c:firewall-cmd --state -> r:running'
 
 # 3.4.2.2 Ensure iptables is not enabled (Scored)
   - id: 5590 
@@ -1681,8 +1711,8 @@ checks:
       - tsc: ["CC6.6"]
     condition: all
     rules:
-      - 'c:systemctl status iptables -> r:Loaded:\s*disabled|Loaded:\s*masked'
-      - 'c:systemctl status iptables -> r:Active:\s*inactive\s*\(dead\)'
+      - 'c:systemctl status iptables -> r:Loaded:\s*disabled|Loaded:\s*masked|could not be found'
+      - 'c:systemctl status iptables -> r:Active:\s*inactive\s*\(dead\)|could not be found'
       - 'c:systemctl is-enabled iptables -> !r:enabled'
 
 # 3.4.2.3 Ensure nftables is not enabled (Scored)
@@ -1698,8 +1728,8 @@ checks:
       - tsc: ["CC6.6"]
     condition: all
     rules:
-      - 'c:systemctl status nftables -> r:Loaded:\s*disabled|Loaded:\s*masked'
-      - 'c:systemctl status nftables -> r:Active:\s*inactive\s*\(dead\)'
+      - 'c:systemctl status nftables -> r:Loaded:\s*disabled|Loaded:\s*masked|could not be found'
+      - 'c:systemctl status nftables -> r:Active:\s*inactive\s*\(dead\)|could not be found'
       - 'c:systemctl is-enabled nftables -> !r:^enabled'
 
 ###############################################
@@ -1806,9 +1836,9 @@ checks:
       - tsc: ["CC6.6"]
     condition: all
     rules:
-      - 'c:iptables -L -> r:Chain INPUT \(policy DROP\)|Chain INPUT \(policy REJECT\)'
-      - 'c:iptables -L -> r:Chain FORWARD \(policy DROP\)|Chain FORWARD \(policy REJECT\)'
-      - 'c:iptables -L -> r:Chain OUTPUT \(policy DROP\)|Chain OUTPUT \(policy REJECT\)'
+      - 'c:iptables -L -> r:Chain INPUT \(policy DROP\)'
+      - 'c:iptables -L -> r:Chain FORWARD \(policy DROP\)'
+      - 'c:iptables -L -> r:Chain OUTPUT \(policy DROP\)'
 
 # 3.4.4.1.2 Ensure loopback traffic is configured (Scored)
   - id: 5598 
@@ -1843,9 +1873,9 @@ checks:
       - tsc: ["CC6.6"]
     condition: all
     rules:
-      - 'c:ip6tables -L -> r:Chain INPUT \(policy DROP\)|Chain INPUT \(policy REJECT\)'
-      - 'c:ip6tables -L -> r:Chain FORWARD \(policy DROP\)|Chain FORWARD \(policy REJECT\)'
-      - 'c:ip6tables -L -> r:Chain OUTPUT \(policy DROP\)|Chain OUTPUT \(policy REJECT\)'
+      - 'c:ip6tables -L -> r:Chain INPUT \(policy DROP\)'
+      - 'c:ip6tables -L -> r:Chain FORWARD \(policy DROP\)'
+      - 'c:ip6tables -L -> r:Chain OUTPUT \(policy DROP\)'
 
 # 3.4.4.2.2 Ensure IPv6 loopback traffic is configured (Scored)
   - id: 5600 
@@ -1922,7 +1952,7 @@ checks:
       - tsc: ["CC6.1","CC6.2","CC6.3","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'not c:rpm -q audit audit-libs -> r:is not installed'
+      - 'c:rpm -q audit audit-libs -> r:^audit-'
 
 # 4.1.1.2 Ensure auditd service is enabled (Scored)
   - id: 5604 
@@ -1939,7 +1969,7 @@ checks:
       - tsc: ["CC6.1","CC6.2","CC6.3","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'c:systemctl is-enabled auditd -> r:^enabled'
+      - 'c:systemctl is-enabled auditd -> enabled'
 
 
 # 4.1.1.3 Ensure auditing for processes that start prior to auditd is enabled (Scored)
@@ -2043,8 +2073,8 @@ checks:
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'd:/etc/audit/rules.d -> r:\.+.rules$ -> -w /etc/sudoers -p wa -k scope'
-      - 'd:/etc/audit/rules.d -> r:\.+.rules$ -> -w /etc/sudoers.d/ -p wa -k scope'
+      - 'd:/etc/audit/rules.d -> .rules -> r:-w /etc/sudoers && r:-p wa && r:-k scope'
+      - 'd:/etc/audit/rules.d -> .rules -> r:-w /etc/sudoers.d/ && r:-p wa && r:-k scope'
       
 
 # 4.1.4 Ensure login and logout events are collected (Scored)
@@ -2366,7 +2396,8 @@ checks:
       - tsc: ["CC5.2","CC7.2"]
     condition: all
     rules:
-      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 0600|^\$FileCreateMode 0640|^\$FileCreateMode 0440|^\$FileCreateMode 0400'
+      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 06\d0|^\$FileCreateMode 04\d0|^\$FileCreateMode 02\d0|^\$FileCreateMode 00\d0'
+      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 0\d40|^\$FileCreateMode 0\d20|^\$FileCreateMode 0\d00'
 
 # 4.2.1.5 Ensure rsyslog is configured to send logs to a remote log host (Scored)
   - id: 5626 
@@ -2396,6 +2427,8 @@ checks:
       - pci_dss: ["10.5.3"]
       - nist_800_53: ["CM.1","AU.9","AU.4"]
       - tsc: ["CC5.2","CC7.2"]
+    references:
+      - 'https://github.com/konstruktoid/hardening/blob/master/systemd.adoc#etcsystemdjournaldconf'
     condition: all
     rules:
       - 'f:/etc/systemd/journald.conf -> r:^\s*\t*ForwardToSyslog\s*=\s*yes'
@@ -2469,7 +2502,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:systemctl is-enabled crond -> r:^enabled'
+      - 'c:systemctl is-enabled crond -> enabled'
 
 # 5.1.2 Ensure permissions on /etc/crontab are configured (Scored)
   - id: 5632 
@@ -2488,7 +2521,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/crontab -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/crontab -> r:^Access: \(0\d00/-\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 
 # 5.1.3 Ensure permissions on /etc/cron.hourly are configured (Scored)
@@ -2505,7 +2538,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.hourly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.hourly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.4 Ensure permissions on /etc/cron.daily are configured (Scored)
   - id: 5634 
@@ -2521,7 +2554,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.daily -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.daily -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.5 Ensure permissions on /etc/cron.weekly are configured (Scored)
   - id: 5635 
@@ -2537,7 +2570,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.weekly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.weekly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 
 # 5.1.6 Ensure permissions on /etc/cron.monthly are configured (Scored)
@@ -2554,7 +2587,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.monthly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.monthly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.7 Ensure permissions on /etc/cron.d are configured (Scored)
   - id: 5637 
@@ -2570,7 +2603,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.d -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.d -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.8 Ensure at/cron is restricted to authorized users (Scored)
   - id: 5638 
@@ -2588,8 +2621,8 @@ checks:
     rules:
       - 'c:stat /etc/cron.deny -> r:No such file or directory$'
       - 'c:stat /etc/at.deny -> r:No such file or directory$'
-      - 'c:stat /etc/cron.allow -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/at.allow -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.allow -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/at.allow -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 ###############################################
 # 5.2 Configure SSH
@@ -2608,7 +2641,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.2.2 Ensure SSH access is limited (Scored)
   - id: 5640 
@@ -2642,9 +2675,9 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/ssh_host_rsa_key -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ecdsa_key -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ed25519_key -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_rsa_key -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ecdsa_key -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ed25519_key -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.2.4 Ensure permissions on SSH public host key files are configured (Scored)
   - id: 5642 
@@ -2660,9 +2693,9 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/ssh_host_rsa_key.pub -> r:^Access: \(0644/-rw-r--r--\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ecdsa_key.pub -> r:^Access: \(0644/-rw-r--r--\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ed25519_key.pub -> r:^Access: \(0644/-rw-r--r--\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_rsa_key.pub -> r:^Access: \(0\d\d\d/\w\w\w\w\w\w-\w\w-\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ecdsa_key.pub -> r:^Access: \(0\d\d\d/\w\w\w\w\w\w-\w\w-\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ed25519_key.pub -> r:^Access: \(0\d\d\d/\w\w\w\w\w\w-\w\w-\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.2.5 Ensure SSH LogLevel is appropriate (Scored)
   - id: 5643 
@@ -3129,9 +3162,12 @@ checks:
       - tsc: ["CC6.1"]
     condition: none
     rules:
-      - 'f:/etc/bashrc -> n:^\s*\t*umask\s+(\d+) compare >= 027'
-      - 'f:/etc/profile -> n:^\s*\t*umask\s+(\d+) compare >= 027'
-      - 'd:/etc/profile.d -> .sh -> n:^\s*\t*umask\s+(\d+) compare >= 027'
+      - 'f:/etc/bashrc -> !r:^# && r:umask \d0\d|umask \d1\d|umask \d4\d|umask \d5\d'
+      - 'f:/etc/bashrc -> !r:^# && n:umask \d\d(\d) compare != 7'
+      - 'f:/etc/profile -> !r:^# && r:umask \d0\d|umask \d1\d|umask \d4\d|umask \d5\d'
+      - 'f:/etc/profile -> !r:^# && n:umask \d\d(\d) compare != 7'
+      - 'd:/etc/profile.d -> .sh -> !r:^# && r:umask \d0\d|umask \d1\d|umask \d4\d|umask \d5\d'
+      - 'd:/etc/profile.d -> .sh -> !r:^# && n:umask \d\d(\d) compare != 7'
 
 # 5.7 Ensure access to the su command is restricted (Scored)
   - id: 5671 
