@@ -1836,9 +1836,9 @@ checks:
       - tsc: ["CC6.6"]
     condition: all
     rules:
-      - 'c:iptables -L -> r:Chain INPUT \(policy DROP\)|Chain INPUT \(policy REJECT\)'
-      - 'c:iptables -L -> r:Chain FORWARD \(policy DROP\)|Chain FORWARD \(policy REJECT\)'
-      - 'c:iptables -L -> r:Chain OUTPUT \(policy DROP\)|Chain OUTPUT \(policy REJECT\)'
+      - 'c:iptables -L -> r:Chain INPUT \(policy DROP\)'
+      - 'c:iptables -L -> r:Chain FORWARD \(policy DROP\)'
+      - 'c:iptables -L -> r:Chain OUTPUT \(policy DROP\)'
 
 # 3.4.4.1.2 Ensure loopback traffic is configured (Scored)
   - id: 5598 
@@ -1873,9 +1873,9 @@ checks:
       - tsc: ["CC6.6"]
     condition: all
     rules:
-      - 'c:ip6tables -L -> r:Chain INPUT \(policy DROP\)|Chain INPUT \(policy REJECT\)'
-      - 'c:ip6tables -L -> r:Chain FORWARD \(policy DROP\)|Chain FORWARD \(policy REJECT\)'
-      - 'c:ip6tables -L -> r:Chain OUTPUT \(policy DROP\)|Chain OUTPUT \(policy REJECT\)'
+      - 'c:ip6tables -L -> r:Chain INPUT \(policy DROP\)'
+      - 'c:ip6tables -L -> r:Chain FORWARD \(policy DROP\)'
+      - 'c:ip6tables -L -> r:Chain OUTPUT \(policy DROP\)'
 
 # 3.4.4.2.2 Ensure IPv6 loopback traffic is configured (Scored)
   - id: 5600 
@@ -1952,7 +1952,7 @@ checks:
       - tsc: ["CC6.1","CC6.2","CC6.3","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'not c:rpm -q audit audit-libs -> r:is not installed'
+      - 'c:rpm -q audit audit-libs -> r:^audit-'
 
 # 4.1.1.2 Ensure auditd service is enabled (Scored)
   - id: 5604 
@@ -1969,7 +1969,7 @@ checks:
       - tsc: ["CC6.1","CC6.2","CC6.3","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'c:systemctl is-enabled auditd -> r:^enabled'
+      - 'c:systemctl is-enabled auditd -> enabled'
 
 
 # 4.1.1.3 Ensure auditing for processes that start prior to auditd is enabled (Scored)
@@ -2057,8 +2057,8 @@ checks:
       - tsc: ["CC6.1","CC6.8","CC7.2","CC7.3","CC7.4"]
     condition: all
     rules:
-      - 'd:/etc/audit/rules.d -> r:\.+.rules$ -> -w /etc/sudoers -p wa -k scope'
-      - 'd:/etc/audit/rules.d -> r:\.+.rules$ -> -w /etc/sudoers.d/ -p wa -k scope'
+      - 'd:/etc/audit/rules.d -> .rules -> r:-w /etc/sudoers && r:-p wa && r:-k scope'
+      - 'd:/etc/audit/rules.d -> .rules -> r:-w /etc/sudoers.d/ && r:-p wa && r:-k scope'
       
 
 # 4.1.4 Ensure login and logout events are collected (Scored)
@@ -2380,7 +2380,8 @@ checks:
       - tsc: ["CC5.2","CC7.2"]
     condition: all
     rules:
-      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 0600|^\$FileCreateMode 0640|^\$FileCreateMode 0440|^\$FileCreateMode 0400'
+      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 06\d0|^\$FileCreateMode 04\d0|^\$FileCreateMode 02\d0|^\$FileCreateMode 00\d0'
+      - 'f:/etc/rsyslog.conf -> r:^\$FileCreateMode 0\d40|^\$FileCreateMode 0\d20|^\$FileCreateMode 0\d00'
 
 # 4.2.1.5 Ensure rsyslog is configured to send logs to a remote log host (Scored)
   - id: 5626 
@@ -2410,6 +2411,8 @@ checks:
       - pci_dss: ["10.5.3"]
       - nist_800_53: ["CM.1","AU.9","AU.4"]
       - tsc: ["CC5.2","CC7.2"]
+    references:
+      - 'https://github.com/konstruktoid/hardening/blob/master/systemd.adoc#etcsystemdjournaldconf'
     condition: all
     rules:
       - 'f:/etc/systemd/journald.conf -> r:^\s*\t*ForwardToSyslog\s*=\s*yes'
@@ -2483,7 +2486,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:systemctl is-enabled crond -> r:^enabled'
+      - 'c:systemctl is-enabled crond -> enabled'
 
 # 5.1.2 Ensure permissions on /etc/crontab are configured (Scored)
   - id: 5632 
@@ -2502,7 +2505,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/crontab -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/crontab -> r:^Access: \(0\d00/-\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 
 # 5.1.3 Ensure permissions on /etc/cron.hourly are configured (Scored)
@@ -2519,7 +2522,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.hourly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.hourly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.4 Ensure permissions on /etc/cron.daily are configured (Scored)
   - id: 5634 
@@ -2535,7 +2538,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.daily -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.daily -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.5 Ensure permissions on /etc/cron.weekly are configured (Scored)
   - id: 5635 
@@ -2551,7 +2554,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.weekly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.weekly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 
 # 5.1.6 Ensure permissions on /etc/cron.monthly are configured (Scored)
@@ -2568,7 +2571,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.monthly -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.monthly -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.7 Ensure permissions on /etc/cron.d are configured (Scored)
   - id: 5637 
@@ -2584,7 +2587,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/cron.d -> r:^Access: \(0700/drwx------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.d -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.1.8 Ensure at/cron is restricted to authorized users (Scored)
   - id: 5638 
@@ -2602,8 +2605,8 @@ checks:
     rules:
       - 'c:stat /etc/cron.deny -> r:No such file or directory$'
       - 'c:stat /etc/at.deny -> r:No such file or directory$'
-      - 'c:stat /etc/cron.allow -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/at.allow -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/cron.allow -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/at.allow -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 ###############################################
 # 5.2 Configure SSH
@@ -2622,7 +2625,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.2.2 Ensure SSH access is limited (Scored)
   - id: 5640 
@@ -2656,9 +2659,9 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/ssh_host_rsa_key -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ecdsa_key -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ed25519_key -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_rsa_key -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ecdsa_key -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ed25519_key -> r:^Access: \(0\d00/\w\w\w\w------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.2.4 Ensure permissions on SSH public host key files are configured (Scored)
   - id: 5642 
@@ -2674,9 +2677,9 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/ssh_host_rsa_key.pub -> r:^Access: \(0644/-rw-r--r--\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ecdsa_key.pub -> r:^Access: \(0644/-rw-r--r--\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
-      - 'c:stat /etc/ssh/ssh_host_ed25519_key.pub -> r:^Access: \(0644/-rw-r--r--\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_rsa_key.pub -> r:^Access: \(0\d\d\d/\w\w\w\w\w\w-\w\w-\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ecdsa_key.pub -> r:^Access: \(0\d\d\d/\w\w\w\w\w\w-\w\w-\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/ssh_host_ed25519_key.pub -> r:^Access: \(0\d\d\d/\w\w\w\w\w\w-\w\w-\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 5.2.5 Ensure SSH LogLevel is appropriate (Scored)
   - id: 5643 
@@ -3142,9 +3145,12 @@ checks:
       - tsc: ["CC6.1"]
     condition: none
     rules:
-      - 'f:/etc/bashrc -> n:^\s*\t*umask\s+(\d+) compare >= 027'
-      - 'f:/etc/profile -> n:^\s*\t*umask\s+(\d+) compare >= 027'
-      - 'd:/etc/profile.d -> .sh -> n:^\s*\t*umask\s+(\d+) compare >= 027'
+      - 'f:/etc/bashrc -> !r:^# && r:umask \d0\d|umask \d1\d|umask \d4\d|umask \d5\d'
+      - 'f:/etc/bashrc -> !r:^# && n:umask \d\d(\d) compare != 7'
+      - 'f:/etc/profile -> !r:^# && r:umask \d0\d|umask \d1\d|umask \d4\d|umask \d5\d'
+      - 'f:/etc/profile -> !r:^# && n:umask \d\d(\d) compare != 7'
+      - 'd:/etc/profile.d -> .sh -> !r:^# && r:umask \d0\d|umask \d1\d|umask \d4\d|umask \d5\d'
+      - 'd:/etc/profile.d -> .sh -> !r:^# && n:umask \d\d(\d) compare != 7'
 
 # 5.7 Ensure access to the su command is restricted (Scored)
   - id: 5671 
