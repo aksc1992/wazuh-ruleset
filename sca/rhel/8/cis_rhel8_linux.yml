@@ -1747,10 +1747,10 @@ checks:
       - cis_csc: ["9.4"]
       - pci_dss: ["1.2"]
       - tsc: ["CC6.6"]
-    condition: all
+    condition: none
     rules:
-      - 'c:iptables -L -> !r:^\s*Chain | !r:^\s*target'
-      - 'c:ip6tables -L -> !r:^\s*Chain | !r:^\s*target'
+      - 'c:iptables -L -> !r:^\s*Chain|^\s*target && r:\s*\S+'
+      - 'c:ip6tables -L -> !r:^\s*Chain|^\s*target && r:\s*\S+'
 
 # 3.4.3.2 Ensure a table exists (Scored)
   - id: 5593 
