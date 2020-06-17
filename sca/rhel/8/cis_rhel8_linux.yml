@@ -2509,7 +2509,7 @@ checks:
     title: "Ensure permissions on /etc/crontab are configured"
     description: "The /etc/crontab file is used by cron to control its own jobs. The commands in this item make sure that root is the user and group owner of the file and that only the owner can access the file."
     rationale: "This file contains information on what system jobs are run by cron. Write access to these files could provide unprivileged users with the ability to elevate their privileges. Read access to these files could provide users with the ability to gain insight on system jobs that run on the system and could provide them a way to gain unauthorized privileged access."
-    remediation: "Run the following commands to set ownership and permissions on /etc/crontab : chown root:root /etc/crontab and chmod og-rwx /etc/crontab"
+    remediation: "Run the following commands to set ownership and permissions on /etc/crontab : # chown root:root /etc/crontab # chmod og-rwx /etc/crontab"
     compliance:
       - cis: ["5.1.2"]
       - cis_csc: ["5.1"]
@@ -2529,7 +2529,7 @@ checks:
     title: "Ensure permissions on /etc/cron.hourly are configured"
     description: "This directory contains system cron jobs that need to run on an hourly basis. The files in this directory cannot be manipulated by the crontab command, but are instead edited by system administrators using a text editor. The commands below restrict read/write and search access to user and group root, preventing regular users from accessing this directory."
     rationale: "Granting write access to this directory for non-privileged users could provide them the means for gaining unauthorized elevated privileges. Granting read access to this directory could give an unprivileged user insight in how to gain elevated privileges or circumvent auditing controls."
-    remediation: "Run the following commands to set ownership and permissions on /etc/cron.hourly : chown root:root /etc/cron.hourly and chmod og-rwx /etc/cron.hourly"
+    remediation: "Run the following commands to set ownership and permissions on /etc/cron.hourly : # chown root:root /etc/cron.hourly # chmod og-rwx /etc/cron.hourly"
     compliance:
       - cis: ["5.1.3"]
       - cis_csc: ["5.1"]
@@ -2545,7 +2545,7 @@ checks:
     title: "Ensure permissions on /etc/cron.daily are configured"
     description: "The /etc/cron.daily directory contains system cron jobs that need to run on a daily basis. The files in this directory cannot be manipulated by the crontab command, but are instead edited by system administrators using a text editor. The commands below restrict read/write and search access to user and group root, preventing regular users from accessing this directory."
     rationale: "Granting write access to this directory for non-privileged users could provide them the means for gaining unauthorized elevated privileges. Granting read access to this directory could give an unprivileged user insight in how to gain elevated privileges or circumvent auditing controls."
-    remediation: "Run the following commands to set ownership and permissions on /etc/cron.daily : chown root:root /etc/cron.daily and chmod og-rwx /etc/cron.daily"
+    remediation: "Run the following commands to set ownership and permissions on /etc/cron.daily : # chown root:root /etc/cron.daily # chmod og-rwx /etc/cron.daily"
     compliance:
       - cis: ["5.1.4"]
       - cis_csc: ["5.1"]
@@ -2561,7 +2561,7 @@ checks:
     title: "Ensure permissions on /etc/cron.weekly are configured"
     description: "The /etc/cron.weekly directory contains system cron jobs that need to run on a weekly basis. The files in this directory cannot be manipulated by the crontab command, but are instead edited by system administrators using a text editor. The commands below restrict read/write and search access to user and group root, preventing regular users from accessing this directory."
     rationale: "Granting write access to this directory for non-privileged users could provide them the means for gaining unauthorized elevated privileges. Granting read access to this directory could give an unprivileged user insight in how to gain elevated privileges or circumvent auditing controls."
-    remediation: "Run the following commands to set ownership and permissions on /etc/cron.weekly : chown root:root /etc/cron.weekly and chmod og-rwx /etc/cron.weekly"
+    remediation: "Run the following commands to set ownership and permissions on /etc/cron.weekly : # chown root:root /etc/cron.weekly # chmod og-rwx /etc/cron.weekly"
     compliance:
       - cis: ["5.1.5"]
       - cis_csc: ["5.1"]
@@ -2578,7 +2578,7 @@ checks:
     title: "Ensure permissions on /etc/cron.monthly are configured"
     description: "The /etc/cron.monthly directory contains system cron jobs that need to run on a monthly basis. The files in this directory cannot be manipulated by the crontab command, but are instead edited by system administrators using a text editor. The commands below restrict read/write and search access to user and group root, preventing regular users from accessing this directory."
     rationale: "Granting write access to this directory for non-privileged users could provide them the means for gaining unauthorized elevated privileges. Granting read access to this directory could give an unprivileged user insight in how to gain elevated privileges or circumvent auditing controls."
-    remediation: "Run the following commands to set ownership and permissions on /etc/cron.monthly : chown root:root /etc/cron.monthly and chmod og-rwx /etc/cron.monthly"
+    remediation: "Run the following commands to set ownership and permissions on /etc/cron.monthly : # chown root:root /etc/cron.monthly # chmod og-rwx /etc/cron.monthly"
     compliance:
       - cis: ["5.1.6"]
       - cis_csc: ["5.1"]
@@ -2594,7 +2594,7 @@ checks:
     title: "Ensure permissions on /etc/cron.d are configured"
     description: "Configure /etc/cron.allow and /etc/at.allow to allow specific users to use these services. If /etc/cron.allow or /etc/at.allow do not exist, then /etc/at.deny and /etc/cron.deny are checked. Any user not specifically defined in those files is allowed to use at and cron. By removing the files, only users in /etc/cron.allow and /etc/at.allow are allowed to use at and cron. Note that even though a given user is not listed in cron.allow , cron jobs can still be run as that user. The cron.allow file only controls administrative access to the crontab command for scheduling and modifying cron jobs."
     rationale: "On many systems, only the system administrator is authorized to schedule cron jobs. Using the cron.allow file to control who can run cron jobs enforces this policy. It is easier to manage an allow list than a deny list. In a deny list, you could potentially add a user ID to the system and forget to add it to the deny files."
-    remediation: "Run the following commands to remove /etc/cron.deny and /etc/at.deny and create and set permissions and ownership for /etc/cron.allow and /etc/at.allow: rm /etc/cron.deny;rm /etc/at.deny;touch /etc/cron.allow; touch /etc/at.allow; chmod og-rwx /etc/cron.allow; chmod og-rwx /etc/at.allow; chown root:root /etc/cron.allow and chown root:root /etc/at.allow"
+    remediation: "Run the following commands to set ownership and permissions on /etc/cron.d : # chown root:root /etc/cron.d # chmod og-rwx /etc/cron.d"
     compliance:
       - cis: ["5.1.7"]
       - cis_csc: ["5.1"]
@@ -2610,7 +2610,7 @@ checks:
     title: "Ensure at/cron is restricted to authorized users"
     description: "Configure /etc/cron.allow and /etc/at.allow to allow specific users to use these services. If /etc/cron.allow or /etc/at.allow do not exist, then /etc/at.deny and /etc/cron.deny are checked. Any user not specifically defined in those files is allowed to use at and cron. By removing the files, only users in /etc/cron.allow and /etc/at.allow are allowed to use at and cron. Note that even though a given user is not listed in cron.allow , cron jobs can still be run as that user. The cron.allow file only controls administrative access to the crontab command for scheduling and modifying cron jobs."
     rationale: "On many systems, only the system administrator is authorized to schedule cron jobs. Using the cron.allow file to control who can run cron jobs enforces this policy. It is easier to manage an allow list than a deny list. In a deny list, you could potentially add a user ID to the system and forget to add it to the deny files."
-    remediation: "Run the following commands to remove /etc/cron.deny and /etc/at.deny and create and set permissions and ownership for /etc/cron.allow and /etc/at.allow: rm /etc/cron.deny;rm /etc/at.deny;touch /etc/cron.allow; touch /etc/at.allow; chmod og-rwx /etc/cron.allow; chmod og-rwx /etc/at.allow; chown root:root /etc/cron.allow and chown root:root /etc/at.allow"
+    remediation: "Run the following commands to remove /etc/cron.deny and /etc/at.deny and create and set permissions and ownership for /etc/cron.allow and /etc/at.allow : # rm /etc/cron.deny # rm /etc/at.deny # touch /etc/cron.allow # touch /etc/at.allow # chmod og-rwx /etc/cron.allow # chmod og-rwx /etc/at.allow # chown root:root /etc/cron.allow"
     compliance:
       - cis: ["5.1.8"]
       - cis_csc: ["16"]
@@ -2632,7 +2632,7 @@ checks:
     title: "Ensure permissions on /etc/ssh/sshd_config are configured"
     description: "The /etc/ssh/sshd_config file contains configuration specifications for sshd. The command below sets the owner and group of the file to root."
     rationale: "The /etc/ssh/sshd_config file needs to be protected from unauthorized changes by non-privileged users."
-    remediation: "Run the following commands to set ownership and permissions on /etc/ssh/sshd_config: chown root:root /etc/ssh/sshd_config and chmod og-rwx /etc/ssh/sshd_config"
+    remediation: "Run the following commands to set ownership and permissions on /etc/ssh/sshd_config : # chown root:root /etc/ssh/sshd_config # chmod og-rwx /etc/ssh/sshd_config"
     compliance:
       - cis: ["5.2.1"]
       - cis_csc: ["5.1"]
@@ -2972,7 +2972,7 @@ checks:
     title: "Ensure authselect includes with-faillock"
     description: "The pam_faillock.so module maintains a list of failed authentication attempts per user during a specified interval and locks the account in case there were more than deny consecutive failed authentications. It stores the failure records into per-user files in the tally directory."
     rationale: "Locking out user IDs after n unsuccessful consecutive login attempts mitigates brute force password attacks against your systems."
-    remediation: "Run the following command to include the with-faillock option: # authselect select <PROFILE NAME> with-faillock .Example: # authselect select custom/custom-profile with-sudo with-faillock without-nullok"
+    remediation: "Run the following command to include the with-faillock option: # authselect select <PROFILE NAME> with-faillock    Example: # authselect select custom/custom-profile with-sudo with-faillock without-nullok"
     compliance:
       - cis: ["5.3.3"]
       - pci_dss: ["8.1"]
