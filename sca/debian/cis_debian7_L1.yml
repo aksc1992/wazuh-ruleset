@@ -243,7 +243,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *autofsc* -> r:S\.'
+      - 'c:find /etc/ -name *autofs* -> r:/etc/rc\d+.d/S\d+autofs'    
 
 # 3 Secure Boot Settings
 
@@ -338,23 +338,6 @@ checks:
     condition: none
     rules:
       - 'c:dpkg -s prelink -> r:install ok installed'
-
-# 4.5 Activate AppArmor (Scored)
-  - id: 1320
-    title: "Activate AppArmor"
-    description: "AppArmor provides a Mandatory Access Control (MAC) system that greatly augments the default Discretionary Access Control (DAC) model."
-    rationale: "For an action to occur, both the traditional DAC permissions must be satisfied as well as the AppArmor MAC rules. The action will not be allowed if either one of these models does not permit the action. In this way, AppArmor rules can only make a system's permissions more restrictive and secure."
-    remediation: "Install apparmor and apparmor-utils if missing (additional profiles can be found in the apparmor-profiles package): # apt-get install apparmor apparmor-profiles apparmor-utils Add apparmor=1 and security=apparmor to GRUB_CMDLINE_LINUX in /etc/default/grub : GRUB_CMDLINE_LINUX=\"apparmor=1 security=apparmor\" Update grub configuration (reboot will be required to apply changes): # update-grub Set all profiles to enforce mode: # aa-enforce /etc/apparmor.d/* Any unconfined processes may need to have a profile created or activated for them and then be restarted."
-    compliance:
-      - cis: ["4.5"]
-      - pci_dss: ["2.2.4"]
-      - nist_800_53: ["CM.1"]
-      - tsc: ["CC5.2"]
-    condition: all
-    rules:
-      - 'c:apparmor_status -> n:(\d+) profiles are loaded compare >= 4'
-      - 'c:apparmor_status -> r:0 profiles are in complain mode'
-      - 'c:apparmor_status -> r:0 processes are unconfined but have a profile defined'
 
 
 ######################################
@@ -503,7 +486,7 @@ checks:
       - hipaa: ["164.312.b"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *xinetd* -> r:S\.'
+      - 'c:find /etc/ -name *xinetd* -> r:/etc/rc\d+.d/S\d+xinetd'    
 
 # 5.2 Ensure chargen is not enabled (Scored)
   - id: 1024
@@ -629,7 +612,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *avahi-daemon* -> r:S\.'
+      - 'c:find /etc/ -name *avahi-daemon* -> r:/etc/rc\d+.d/S\d+avahi-daemon'    
 
 # 6.3 Ensure print server is not enabled (Scored)
   - id: 1030
@@ -645,7 +628,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *cups* -> r:S\.'
+      - 'c:find /etc/ -name *cups* -> r:/etc/rc\d+.d/S\d+cups'    
 
 # 6.4 Ensure DHCP Server is not enabled (Scored)
   - id: 1031
@@ -663,7 +646,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *isc-dhcp-server* -> r:S\.'
+      - 'c:find /etc/ -name *isc-dhcp-server* -> r:/etc/rc\d+.d/S\d+isc-dhcp-server'    
 
 # 6.5 Ensure DHCP Server is not enabled (Scored)
   - id: 1032
@@ -685,7 +668,7 @@ checks:
       - 'f:/etc/ntp.conf -> r:^restrict -4 default && r:kod && r:nomodify && r:notrap && r:nopeer && r:noquery'
       - 'f:/etc/ntp.conf -> r:^restrict -6 default && r:kod && r:nomodify && r:notrap && r:nopeer && r:noquery'
       - 'f:/etc/ntp.conf -> r:^server\s\.+'
-      - 'f:/etc/ntp.conf -> r:^RUNASUSER\s*\t*=\s*\t*ntp'
+      - 'f:/etc/init.d/ntp -> r:^RUNASUSER\s*\t*=\s*\t*ntp'
 
 # 6.6 Ensure LDAP is not enabled (Scored)
   - id: 1033
@@ -719,8 +702,8 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *rpcbind* -> r:S\.'
-      - 'c:find /etc/rc* -name *nfs-kernel-server* -> r:S\.'
+      - 'c:find /etc/ -name *rpcbind* -> r:/etc/rc\d+.d/S\d+rpcbind'    
+      - 'c:find /etc/ -name *nfs-kernel-server* -> r:/etc/rc\d+.d/S\d+nfs-kernel-server'    
 
 # 6.8 Ensure DNS Server is not enabled (Scored)
   - id: 1035
@@ -736,7 +719,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *bind9* -> r:S\.'
+      - 'c:find /etc/ -name *bind9* -> r:/etc/rc\d+.d/S\d+bind9'    
 
 # 6.9 Ensure FTP Server is not enabled (Scored)
   - id: 1036
@@ -752,7 +735,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *vsftpd* -> r:S\.'
+      - 'c:find /etc/ -name *vsftpd* -> r:/etc/rc\d+.d/S\d+vsftp'    
 
 # 6.10 Ensure HTTP Server is not enabled (Scored)
   - id: 1037
@@ -768,7 +751,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *apache2* -> r:S\.'
+      - 'c:find /etc/ -name *apache2* -> r:/etc/rc\d+.d/S\d+apache2'    
 
 # 6.11 Ensure IMAP and POP Server is not enabled (Scored)
   - id: 1038
@@ -784,7 +767,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *dovecot* -> r:S\.'
+      - 'c:find /etc/ -name *dovecot* -> r:/etc/rc\d+.d/S\d+dovecot'    
 
 # 6.12 Ensure Samba is not enabled (Scored)
   - id: 1039
@@ -800,7 +783,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *smb* -> r:S\.'
+      - 'c:find /etc/ -name *samba* -> r:/etc/rc\d+.d/S\d+samba'    
 
 # 6.13 Ensure HTTP Proxy Server is not enabled (Scored)
   - id: 1040
@@ -816,7 +799,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *squid3* -> r:S\.'
+      - 'c:find /etc/ -name *squid3* -> r:/etc/rc\d+.d/S\d+squid3'    
 
 # 6.14 Ensure SNMP Server is not enabled (Scored)
   - id: 1041
@@ -832,7 +815,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:find /etc/rc* -name *snmpd* -> r:S\.'
+      - 'c:find /etc/ -name *snmpd* -> r:/etc/rc\d+.d/S\d+snmpd'    
 
 # 6.15 Ensure Mail Transfer Agent for Local-Only Mode (Scored)
   - id: 1042
@@ -1272,7 +1255,7 @@ checks:
     rules:
       - 'c:dpkg -s iptables -> r:install ok installed'
       - 'c:dpkg -s iptables-persistent -> r:install ok installed'
-      - 'c:find /etc/rc* -name *iptables-persistent* -> r:S\.'
+      - 'c:find /etc/ -name *iptables-persistent* -> r:/etc/rc\d+.d/S\d+iptables-persistent'    
 
 ###############################################
 # 8 Logging and Auditing
@@ -1305,7 +1288,7 @@ checks:
       - cis_csc: ["6.2"]
     condition: all
     rules:
-      - 'c:find /etc/rc* -name *rsyslog* -> r:S\.'
+      - 'c:find /etc/ -name *rsyslog* -> r:/etc/rc\d+.d/S\d+rsyslog'    
 
 # 8.2.5 Configure rsyslog to send logs to a Remote Log Host (Scored)
   - id: 1065
@@ -1355,8 +1338,8 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:find /etc/rc* -name *cron* -> r:S\.'
-      - 'c:find /etc/rc* -name *anacron* -> r:S\.'
+      - 'c:find /etc/ -name *cron* -> r:/etc/rc\d+.d/S\d+cron'    
+      - 'c:find /etc/ -name *anacron* -> r:/etc/rc\d+.d/S\d+anacron'    
 
 # 9.1.2 Set User/Group Owner and Permission on /etc/crontab (Scored)
   - id: 1304 

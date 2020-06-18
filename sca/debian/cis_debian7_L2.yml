@@ -207,7 +207,7 @@ checks:
     condition: all
     rules:
       - 'c:dpkg -s auditd -> r:install ok installed'
-      - 'c:find /etc/rc* -name *auditd* -> r:S\.'
+      - 'c:find /etc/ -name *auditd* -> r:/etc/rc\d+.d/S\d+auditd'    
 
 # 8.1.3 Enable Auditing for Processes That Start Prior to auditd (Scored)
   - id: 1512
