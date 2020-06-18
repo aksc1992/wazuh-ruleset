@@ -247,6 +247,34 @@ checks:
 
 # 3 Secure Boot Settings
 
+  - id: 2000
+    title: "Set User/Group Owner on bootloader config"
+    description: "Set the owner and group of your boot loaders config file to the root user. These instructions default to GRUB stored at /boot/grub/grub.cfg ."
+    rationale: "Setting the owner and group to root prevents non-root users from changing the file."
+    remediation: "Run the following to change ownership of /boot/grub/grub.cfg : # chown root:root /boot/grub/grub.cfg"
+    compliance:
+      - cis: ["3.1"]
+      - pci_dss: ["2.2.4"]
+      - nist_800_53: ["CM.1"]
+      - tsc: ["CC5.2"]
+    condition: all
+    rules:
+      - 'c:stat /boot/grub/grub.cfg -> r:Uid:\s*\(\s*\t*0/\s*\t*root\)\s*\t*Gid:\s*\(\s*\t*0/\s*\t*root\)'
+
+  - id: 2001
+    title: "Set Permissions on bootloader config"
+    description: "Set permission on the your boot loaders config file to read and write for root only."
+    rationale: "Setting the permissions to read and write for root only prevents non-root users from seeing the boot parameters or changing them. Non-root users who read the boot parameters may be able to identify weaknesses in security upon boot and be able to exploitthem."
+    remediation: "Run the following to set the permissions fro /boot/grub/grub.cfg : # chmod og-rwx /boot/grub/grub.cfg"
+    compliance:
+      - cis: ["3.2"]
+      - pci_dss: ["2.2.4"]
+      - nist_800_53: ["CM.1"]
+      - tsc: ["CC5.2"]
+    condition: all
+    rules:
+      - 'c:stat /boot/grub/grub.cfg -> r:^Access: \(0\d00/-\w\w\w------\)'
+
   - id: 1014
     title: "Set Boot Loader Password"
     description: "Setting the boot loader password will require that anyone rebooting the system must enter a password before being able to set command line boot parameters"
