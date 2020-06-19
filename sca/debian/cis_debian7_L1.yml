@@ -1115,12 +1115,7 @@ checks:
       - hipaa: ["164.312.b"]
     condition: all
     rules:
-      - 'c:sysctl net.ipv6.conf.all.disable_ipv6 -> r:=\s*\t*1$'
-      - 'c:sysctl net.ipv6.conf.default.disable_ipv6 -> r:=\s*\t*1$'
-      - 'c:sysctl net.ipv6.conf.lo.disable_ipv6 -> r:=\s*\t*1$'
-      - 'f:/etc/sysctl.conf -> r:^net.ipv6.conf.all.disable_ipv6\s*\t*=\s*\t*1'
-      - 'f:/etc/sysctl.conf -> r:^net.ipv6.conf.default.disable_ipv6\s*\t*=\s*\t*1'
-      - 'f:/etc/sysctl.conf -> r:^net.ipv6.conf.lo.disable_ipv6\s*\t*=\s*\t*1'
+      - 'not c:ip addr -> r:inet6'
 
 # 7.4.1 Install TCP Wrappers (Scored)
   - id: 2003
