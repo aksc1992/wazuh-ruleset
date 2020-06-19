@@ -1203,9 +1203,10 @@ checks:
       - gpg_13: ["4.3"]
       - gdpr_IV: ["35.7.d"]
       - hipaa: ["164.312.b"]
-    condition: none
+    condition: all
     rules:
-      - 'c:lsmod -> r:dccp'
+      - 'f:/etc/modprobe.d/CIS.conf'
+      - 'f:/etc/modprobe.d/CIS.conf -> r:install dccp /bin/true'
 
 # 7.5.2 Disable SCTP (Not Scored)
   - id: 1060
@@ -1222,9 +1223,10 @@ checks:
       - gpg_13: ["4.3"]
       - gdpr_IV: ["35.7.d"]
       - hipaa: ["164.312.b"]
-    condition: none
+    condition: all
     rules:
-      - 'c:lsmod -> r:sctp'
+      - 'f:/etc/modprobe.d/CIS.conf'
+      - 'f:/etc/modprobe.d/CIS.conf -> r:install sctp /bin/true'
 
 # 7.5.3 Disable RDS (Not Scored)
   - id: 1061
@@ -1241,9 +1243,10 @@ checks:
       - gpg_13: ["4.3"]
       - gdpr_IV: ["35.7.d"]
       - hipaa: ["164.312.b"]
-    condition: none
+    condition: all
     rules:
-      - 'c:lsmod -> r:rds'
+      - 'f:/etc/modprobe.d/CIS.conf'
+      - 'f:/etc/modprobe.d/CIS.conf -> r:install rds /bin/true'
 
 # 7.5.4 Disable TIPC (Not Scored)
   - id: 1062
@@ -1260,9 +1263,10 @@ checks:
       - gpg_13: ["4.3"]
       - gdpr_IV: ["35.7.d"]
       - hipaa: ["164.312.b"]
-    condition: none
+    condition: all
     rules:
-      - 'c:lsmod -> r:tipc'
+      - 'f:/etc/modprobe.d/CIS.conf'
+      - 'f:/etc/modprobe.d/CIS.conf -> r:install tipc /bin/true'
 
 # 7.7 Ensure Firewall is active (Scored)
   - id: 1063
@@ -1289,7 +1293,7 @@ checks:
 
 # 8.2.1 Install the rsyslog package (Scored)
   - id: 2002
-    title: "Ensure the rsyslog Service is activated"
+    title: "Install the rsyslog package"
     description: "The rsyslog package is a third party package that provides many enhancements to syslog, such as multi-threading, TCP communication, message filtering and data base support."
     rationale: "The security enhancements of rsyslog such as connection-oriented (i.e. TCP) transmission of logs, the option to log to database formats, and the encryption of log data en route to a central logging server) justify installing and configuring the package."
     remediation: "Install the rsyslog package: # apt-get install rsyslog"
