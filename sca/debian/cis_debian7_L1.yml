@@ -611,7 +611,7 @@ checks:
 ###############################################
 
 # 6.1 Ensure the X Window system is not installed (Scored)
-  - id: 2000
+  - id: 20000
     title: "Ensure the X Window system is not installed"
     description: "The X Window system provides a Graphical User Interface (GUI) where users can have multiple windows in which to run programs and various add on. The X Window system is typically used on desktops where users login, but not on servers where users typically do not login."
     rationale: "Unless your organization specifically requires graphical login access via X Windows, remove it to reduce the potential attack surface."
@@ -624,7 +624,7 @@ checks:
       - tsc: ["CC5.2","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
     condition: none
     rules:
-      - 'c:dpkg -l xserver-xorg-core* -> r:installed'
+      - 'c:dpkg -l xserver-xorg-core* -> r:^\wi\s*xserver-xorg'
 
 # 6.2 Ensure Avahi Server is not enabled (Scored)
   - id: 1029
@@ -676,7 +676,7 @@ checks:
     rules:
       - 'c:find /etc/ -name *isc-dhcp-server* -> r:/etc/rc\d+.d/S\d+isc-dhcp-server'    
 
-# 6.5 Ensure DHCP Server is not enabled (Scored)
+# 6.5 Configure Network Time Protocol (Scored)
   - id: 1032
     title: "Configure Network Time Protocol (NTP)"
     description: "The Network Time Protocol (NTP) is designed to synchronize system clocks across a variety of systems and use a source that is highly accurate. More information on NTP can be found at http://www.ntp.org. NTP can be configured to be a client and/or a server."
@@ -1123,7 +1123,7 @@ checks:
       - 'f:/etc/sysctl.conf -> r:^net.ipv6.conf.lo.disable_ipv6\s*\t*=\s*\t*1'
 
 # 7.4.1 Install TCP Wrappers (Scored)
-  - id: 2001
+  - id: 2003
     title: "Install TCP Wrappers"
     description: "TCP Wrappers provides a simple access list and standardized logging method for services capable of supporting it. In the past, services that were called from inetd and xinetd supported the use of tcp wrappers. As inetd and xinetd have been falling in disuse, any service that can support tcp wrappers will have the libwrap.so library attached to it."
     rationale: "TCP Wrappers provide a good simple access list mechanism to services that may not have that support built in. It is recommended that all services that can support TCP Wrappers, use it."
