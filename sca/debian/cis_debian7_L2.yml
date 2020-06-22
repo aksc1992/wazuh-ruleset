@@ -291,7 +291,7 @@ checks:
       - hipaa: ["164.312.b"]
     condition: all
     rules:
-      - 'f:/etc/audit'
+      - 'd:/etc/audit'
       - 'f:/etc/audit/audit.rules'
       - 'f:/etc/audit/audit.rules -> r:^-a && r:exit,always|always,exit && r:-F arch=b32 && r:-S sethostname && r:-S setdomainname -k system-locale'
       - 'f:/etc/audit/audit.rules -> r:^-w /etc/issue && r:-p wa && r:-k system-locale'
