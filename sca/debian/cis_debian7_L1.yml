@@ -857,9 +857,9 @@ checks:
       - pci_dss: ["2.2.2"]
       - nist_800_53: ["CM.1","AC.4","SC.7"]
       - tsc: ["CC5.2","CC6.4","CC6.6","CC6.7","CC6.1","CC6.8","CC7.1","CC7.2","CC8.1"]
-    condition: all
+    condition: none
     rules:
-      - 'f:/etc/exim4/update-exim4.conf.conf -> r:^dc_local_interfaces= && r:\p127.0.0.1\s*\p\s*::1\p$|\p::1\s*\p\s*127.0.0.1\p$|\p127.0.0.1\p$|\p::1\p$'
+      - 'c:netstat -an -> r:\.*25\.*LISTEN && !r:127.0.0.1:25\.+LISTEN|::1:25\.*LISTEN'
 
 # 6.16 Ensure rsync service is not enabled (Scored)
   - id: 1043
@@ -876,10 +876,10 @@ checks:
       - gpg_13: ["4.3"]
       - gdpr_IV: ["35.7.d"]
       - hipaa: ["164.312.b"]
-    condition: none
+    condition: any
     rules:
-      - 'c:dpkg -s rsync -> r:install ok installed'
-      - 'not f:/etc/default/rsync -> !r:^# && r:RSYNC_ENABLE\s*\t*=\s*\t*false'
+      - 'not c:dpkg -s rsync -> r:install ok installed'
+      - 'f:/etc/default/rsync -> !r:^# && r:RSYNC_ENABLE\s*\t*=\s*\t*false'
 
 ###############################################
 # 7 Network Configuration and Firewall
@@ -1268,6 +1268,20 @@ checks:
       - 'f:/etc/modprobe.d/CIS.conf'
       - 'f:/etc/modprobe.d/CIS.conf -> r:install tipc /bin/true'
 
+# 7.6 Deactivate Wireless Interfaces (Not Scored)
+  - id: 1344
+    title: "Deactivate Wireless Interfaces"
+    description: "Wireless networking is used when wired networks are unavailable. Debian provides the nmcli interface which allows system administrators to configure and use wireless networks."
+    rationale: "If wireless is not to be used, wireless devices can be disabled to reduce the potential attack surface."
+    remediation: "Use the following command to disable wireless: # nmcli nm wifi off"
+    compliance:
+      - cis: ["7.6"]
+      - pci_dss: ["1.2.3"]
+      - tsc: ["CC6.6"]
+    condition: all
+    rules:
+      - 'c:nmcli nm wifi -> r:disabled'
+
 # 7.7 Ensure Firewall is active (Scored)
   - id: 1063
     title: "Ensure Firewall is active"
@@ -1282,7 +1296,10 @@ checks:
     rules:
       - 'c:dpkg -s iptables -> r:install ok installed'
       - 'c:dpkg -s iptables-persistent -> r:install ok installed'
-      - 'c:find /etc/ -name *iptables-persistent* -> r:/etc/rc\d+.d/S\d+iptables-persistent'    
+      - 'c:find /etc/rc2.d -name *iptables-persistent* -> r:/etc/rc2.d/S\d+iptables-persistent'    
+      - 'c:find /etc/rc3.d -name *iptables-persistent* -> r:/etc/rc3.d/S\d+iptables-persistent'    
+      - 'c:find /etc/rc4.d -name *iptables-persistent* -> r:/etc/rc4.d/S\d+iptables-persistent'    
+      - 'c:find /etc/rc5.d -name *iptables-persistent* -> r:/etc/rc5.d/S\d+iptables-persistent'    
 
 ###############################################
 # 8 Logging and Auditing
@@ -1315,7 +1332,10 @@ checks:
       - cis_csc: ["6.2"]
     condition: all
     rules:
-      - 'c:find /etc/ -name *rsyslog* -> r:/etc/rc\d+.d/S\d+rsyslog'    
+      - 'c:find /etc/rc2.d -name *rsyslog* -> r:/etc/rc2.d/S\d+rsyslog'   
+      - 'c:find /etc/rc3.d -name *rsyslog* -> r:/etc/rc3.d/S\d+rsyslog'    
+      - 'c:find /etc/rc4.d -name *rsyslog* -> r:/etc/rc4.d/S\d+rsyslog'    
+      - 'c:find /etc/rc5.d -name *rsyslog* -> r:/etc/rc5.d/S\d+rsyslog'     
 
 # 8.2.5 Configure rsyslog to send logs to a Remote Log Host (Scored)
   - id: 1065
@@ -1330,7 +1350,7 @@ checks:
       - rsyslog.conf(5) man page
     condition: all
     rules:
-      - 'c:grep -Rh ^*.*[^I][^I]*@ /etc/rsyslog.conf /etc/rsyslog.d/ -> r:^*.* @@\.+'
+      - 'f:/etc/rsyslog.conf -> r:^\s*\t**.* @@\.+'
 
 # 8.2.6 Accept remote rsyslog messages only on designated log hosts (Not Scored)
   - id: 1066
@@ -1345,8 +1365,8 @@ checks:
       - rsyslog.conf(8) man page
     condition: all
     rules:
-      - 'c:grep -Rh ^\$ModLoad[[:space:]][[:space:]]*imtcp.so /etc/rsyslog.conf /etc/rsyslog.d/ -> r:^$ModLoad\s*\t*imtcp.so'
-      - 'c:grep -Rh ^\$InputTCPServerRun[[:space:]][[:space:]]*514 /etc/rsyslog.conf /etc/rsyslog.d/ -> r:^$InputTCPServerRun\s*\t*514'
+      - 'f:/etc/rsyslog.conf -> r:^\s*\t*\$ModLoad\s*\t*imtcp.so'
+      - 'f:/etc/rsyslog.conf -> r:^\s*\t*\$InputTCPServerRun\s*\t*514'
 
 
 ###############################################
@@ -1365,8 +1385,15 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:find /etc/ -name *cron* -> r:/etc/rc\d+.d/S\d+cron'    
-      - 'c:find /etc/ -name *anacron* -> r:/etc/rc\d+.d/S\d+anacron'    
+      - 'c:find /etc/rc2.d -name *cron* -> r:/etc/rc2.d/S\d+cron' 
+      - 'c:find /etc/rc3.d -name *cron* -> r:/etc/rc3.d/S\d+cron'    
+      - 'c:find /etc/rc4.d -name *cron* -> r:/etc/rc4.d/S\d+cron'    
+      - 'c:find /etc/rc5.d -name *cron* -> r:/etc/rc5.d/S\d+cron'    
+      - 'c:find /etc/rc2.d -name *anacron* -> r:/etc/rc2.d/S\d+anacron'    
+      - 'c:find /etc/rc3.d -name *anacron* -> r:/etc/rc3.d/S\d+anacron'    
+      - 'c:find /etc/rc4.d -name *anacron* -> r:/etc/rc4.d/S\d+anacron'    
+      - 'c:find /etc/rc5.d -name *anacron* -> r:/etc/rc5.d/S\d+anacron'    
+
 
 # 9.1.2 Set User/Group Owner and Permission on /etc/crontab (Scored)
   - id: 1304 
@@ -1571,7 +1598,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0600/-rw-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
+      - 'c:stat /etc/ssh/sshd_config -> r:^Access: \(0\d00/-\w\w-------\)  Uid: \(    0/    root\)   Gid: \(    0/    root\)$'
 
 # 9.3.4 Disable SSH X11 Forwarding (Scored)
   - id: 1074
@@ -1589,7 +1616,7 @@ checks:
       - hipaa: ["164.312.b"]
     condition: all
     rules:
-      - 'f:/etc/ssh/sshd_config -> r:^X11Forwarding\s+no'
+      - 'f:/etc/ssh/sshd_config -> !r:^# && r:X11Forwarding\s+no'
 
 # 9.3.5 Set SSH MaxAuthTries to 4 or Less (Scored)
   - id: 1075
@@ -1604,7 +1631,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'f:/etc/ssh/sshd_config -> n:^MaxAuthTries\s*\t*(\d+) compare <= 4'
+      - 'f:/etc/ssh/sshd_config -> !r:^# && n:MaxAuthTries\s*\t*(\d+) compare <= 4'
 
 # 9.3.6 Set SSH IgnoreRhosts to Yes (Scored)
   - id: 1076
@@ -1739,7 +1766,7 @@ checks:
       - tsc: ["CC5.2"]
     condition: all
     rules:
-      - 'f:/etc/ssh/sshd_config -> !r:^# && r:Banner\s*\t*/etc/issue.net|^Banner\s\t*/etc/issue'
+      - 'f:/etc/ssh/sshd_config -> !r:^# && r:Banner\s*\t*/etc/issue.net|Banner\s\t*/etc/issue'
 
 # 9.5 Restrict Access to the su Command (Scored)
   - id: 1084
@@ -1773,7 +1800,7 @@ checks:
       - pci_dss: ["8.2.4"]
     condition: all
     rules:
-      - 'f:/etc/login.defs -> n:^PASS_MAX_DAYS\s*\t*(\d+) compare <= 90'
+      - 'f:/etc/login.defs -> !r:^# && n:PASS_MAX_DAYS\s*\t*(\d+) compare <= 90'
 
 # 10.1.2 Set Password Change Minimum Number of Days (Scored)
   - id: 1086
@@ -1786,7 +1813,7 @@ checks:
       - pci_dss: ["3.6.1"]
     condition: all
     rules:
-      - 'f:/etc/login.defs -> n:^PASS_MIN_DAYS\s*\t*(\d+) compare >= 7'
+      - 'f:/etc/login.defs -> !r:^# && n:PASS_MIN_DAYS\s*\t*(\d+) compare >= 7'
 
 # 10.1.3 Set Password Expiring Warning Days (Scored)
   - id: 1087
@@ -1799,7 +1826,7 @@ checks:
       - pci_dss: ["3.6.1"]
     condition: all
     rules:
-      - 'f:/etc/login.defs -> n:^PASS_WARN_AGE\s*\t*(\d+) compare >= 7'
+      - 'f:/etc/login.defs -> !r:^# && n:PASS_WARN_AGE\s*\t*(\d+) compare >= 7'
 
 # 10.3 Set Default Group for root Account (Scored)
   - id: 1088
@@ -1839,7 +1866,7 @@ checks:
       - pci_dss: ["3.6.1"]
     condition: all
     rules:
-      - 'f:/etc/default/useradd -> n:^INACTIVE=(\d+) compare <= 35'
+      - 'c:useradd -D -> n:^INACTIVE=(\d+) compare <= 35'
 
 ##########################################
 # 11 Warning Banners
