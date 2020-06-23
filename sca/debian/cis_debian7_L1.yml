@@ -1908,9 +1908,9 @@ checks:
       - gdpr_IV: ["35.7","32.2"]
     condition: none
     rules:
-      - 'f:/etc/issue -> r:\v|\r|\m|\s'
-      - 'f:/etc/motd -> r:\v|\r|\m|\s'
-      - 'f:/etc/issue.net -> r:\v|\r|\m|\s'
+      - 'f:/etc/issue -> r:\\v|\\r|\\m|\\s'
+      - 'f:/etc/motd -> r:\\v|\\r|\\m|\\s'
+      - 'f:/etc/issue.net -> r:\\v|\\r|\\m|\\s'
 
 # 11.3 Ensure GDM login banner is configured (Scored)
   - id: 2010
