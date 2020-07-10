@@ -1834,7 +1834,7 @@ checks:
       - 'https://support.microsoft.com/en-us/help/956607/how-to-enable-structured-exception-handling-overwrite-protection-sehop'
     condition: all
     rules:
-      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SessionManager\kernel -> DisableExceptionChainValidation -> 1'
+      - 'r:HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel -> DisableExceptionChainValidation -> 0'
 
 # 18.3.5 Ensure 'Turn on Windows Defender protection against Potentially Unwanted Applications' is set to 'Enabled'
   - id: 16097 
